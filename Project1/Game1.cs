@@ -12,6 +12,7 @@ public class Game1 : Game
     private VertexBuffer _cubeVertexBuffer;
     private IndexBuffer _cubeIndexBuffer;
     private Texture2D _wallTexture;
+    private SpriteFont _compassFont;
 
     private BasicEffect _basicEffect;
     private DungeonMap _map;
@@ -48,6 +49,7 @@ public class Game1 : Game
         _cubeIndexBuffer.SetData(CubeIndices);
 
         _wallTexture = Content.Load<Texture2D>("StoneTexture");
+        _compassFont = Content.Load<SpriteFont>("CompassFont");
 
         _basicEffect = new BasicEffect(GraphicsDevice)
         {
@@ -77,6 +79,10 @@ public class Game1 : Game
 
         DrawDungeon(_camera.Projection, _camera.View, TileSize);
 
+        _spriteBatch.Begin();
+        DrawCompass(_spriteBatch);
+        _spriteBatch.End();
+
         base.Draw(gameTime);
     }
 
@@ -105,6 +111,24 @@ public class Game1 : Game
                 }
             }
         }
+    }
+
+    private void DrawCompass(SpriteBatch spriteBatch)
+    {
+        string direction = _player.FacingDirection switch
+        {
+            0 => "N",
+            3 => "E",
+            2 => "S",
+            1 => "W",
+            _ => "?"
+        };
+
+        // Position in top-left corner with some padding
+        Vector2 position = new Vector2(20, 20);
+
+        // Draw direction text
+        spriteBatch.DrawString(_compassFont, direction, position, Color.White);
     }
 
     public static VertexPositionTexture[] CreateCubeVertices(float size)
