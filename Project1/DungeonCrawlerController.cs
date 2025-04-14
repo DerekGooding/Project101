@@ -22,12 +22,12 @@ public class DungeonCrawlerController(Point startPosition, DungeonMap map)
         {
             if (IsKeyPressed(Keys.A, currentState)) // Rotate Left
             {
-                FacingDirection = (FacingDirection + 3) % 4;
+                FacingDirection = (FacingDirection + 1) % 4;
                 _moveTimer = 0;
             }
             else if (IsKeyPressed(Keys.D, currentState)) // Rotate Right
             {
-                FacingDirection = (FacingDirection + 1) % 4;
+                FacingDirection = (FacingDirection + 3) % 4;
                 _moveTimer = 0;
             }
             else if (IsKeyPressed(Keys.W, currentState)) // Move Forward
@@ -46,7 +46,8 @@ public class DungeonCrawlerController(Point startPosition, DungeonMap map)
     private void AttemptMove(int direction)
     {
         var offset = FacingOffset();
-        var target = new Point(GridPosition.X + (offset.X * direction), GridPosition.Y + (offset.Y * direction));
+        Point target = GridPosition + offset.Multiply(direction);
+
 
         if (_map.IsWalkable(target))
         {

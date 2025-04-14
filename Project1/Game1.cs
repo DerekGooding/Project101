@@ -12,6 +12,7 @@ public class Game1 : Game
 
     private VertexBuffer _cubeVertexBuffer;
     private IndexBuffer _cubeIndexBuffer;
+    private Texture2D _wallTexture;
 
     private BasicEffect _basicEffect;
     private DungeonMap _map;
@@ -41,17 +42,19 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         var vertices = CreateCubeVertices(TileSize);
-        _cubeVertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionColor), vertices.Length, BufferUsage.WriteOnly);
+        _cubeVertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
         _cubeVertexBuffer.SetData(vertices);
 
         _cubeIndexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, CubeIndices.Length, BufferUsage.WriteOnly);
         _cubeIndexBuffer.SetData(CubeIndices);
 
+        _wallTexture = Content.Load<Texture2D>("StoneTexture");
+
         _basicEffect = new BasicEffect(GraphicsDevice)
         {
             LightingEnabled = false,
-            TextureEnabled = false,
-            VertexColorEnabled = true // Important: you're using VertexPositionColor!
+            TextureEnabled = true,
+            VertexColorEnabled = false
         };
     }
 
@@ -83,17 +86,17 @@ public class Game1 : Game
         GraphicsDevice.SetVertexBuffer(_cubeVertexBuffer);
         GraphicsDevice.Indices = _cubeIndexBuffer;
 
+        _basicEffect.Texture = _wallTexture;
         _basicEffect.Projection = projection;
         _basicEffect.View = view;
 
-        foreach (var y in Enumerable.Range(0, _map.Height))
+        for (var y = 0; y < _map.Height; y++)
         {
-            foreach (var x in Enumerable.Range(0, _map.Width))
+            for (var x = 0; x < _map.Width; x++)
             {
                 if (!_map.IsWalkable(new Point(x, y)))
                 {
-                    var world = Matrix.CreateTranslation(new Vector3(x * tileSize, 0, y * tileSize));
-                    _basicEffect.World = world;
+                    _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * tileSize, 0, y * tileSize));
 
                     foreach (var pass in _basicEffect.CurrentTechnique.Passes)
                     {
@@ -105,20 +108,20 @@ public class Game1 : Game
         }
     }
 
-
-    public static VertexPositionColor[] CreateCubeVertices(float size)
+    public static VertexPositionTexture[] CreateCubeVertices(float size)
     {
         var s = size / 2f;
         return
         [
-        new VertexPositionColor(new Vector3(-s, -s, -s), Color.Red),
-        new VertexPositionColor(new Vector3(s, -s, -s), Color.White),
-        new VertexPositionColor(new Vector3(s, s, -s), Color.White),
-        new VertexPositionColor(new Vector3(-s, s, -s), Color.White),
-        new VertexPositionColor(new Vector3(-s, -s, s), Color.White),
-        new VertexPositionColor(new Vector3(s, -s, s), Color.White),
-        new VertexPositionColor(new Vector3(s, s, s), Color.White),
-        new VertexPositionColor(new Vector3(-s, s, s), Color.White),
+            new VertexPositionTexture(new Vector3(-s, -s, -s), new Vector2(0, 1)),
+        new VertexPositionTexture(new Vector3(s, -s, -s), new Vector2(1, 1)),
+        new VertexPositionTexture(new Vector3(s, s, -s), new Vector2(1, 0)),
+        new VertexPositionTexture(new Vector3(-s, s, -s), new Vector2(0, 0)),
+
+        new VertexPositionTexture(new Vector3(-s, -s, s), new Vector2(0, 1)),
+        new VertexPositionTexture(new Vector3(s, -s, s), new Vector2(1, 1)),
+        new VertexPositionTexture(new Vector3(s, s, s), new Vector2(1, 0)),
+        new VertexPositionTexture(new Vector3(-s, s, s), new Vector2(0, 0))
         ];
     }
 
