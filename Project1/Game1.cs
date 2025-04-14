@@ -12,6 +12,7 @@ public class Game1 : Game
     private VertexBuffer _cubeVertexBuffer;
     private IndexBuffer _cubeIndexBuffer;
     private Texture2D _wallTexture;
+    private Texture2D _floorTexture;
     private SpriteFont _compassFont;
 
     private BasicEffect _basicEffect;
@@ -49,6 +50,7 @@ public class Game1 : Game
         _cubeIndexBuffer.SetData(CubeIndices);
 
         _wallTexture = Content.Load<Texture2D>("StoneTexture");
+        _floorTexture = Content.Load<Texture2D>("RockyTexture");
         _compassFont = Content.Load<SpriteFont>("CompassFont");
 
         _basicEffect = new BasicEffect(GraphicsDevice)
@@ -115,7 +117,7 @@ public class Game1 : Game
 
     private void DrawCompass(SpriteBatch spriteBatch)
     {
-        string direction = _player.FacingDirection switch
+        var direction = _player.FacingDirection switch
         {
             0 => "N",
             3 => "E",
@@ -124,10 +126,8 @@ public class Game1 : Game
             _ => "?"
         };
 
-        // Position in top-left corner with some padding
-        Vector2 position = new Vector2(20, 20);
+        var position = new Vector2(20, 20);
 
-        // Draw direction text
         spriteBatch.DrawString(_compassFont, direction, position, Color.White);
     }
 

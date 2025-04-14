@@ -6,7 +6,7 @@ namespace Project1;
 public class DungeonCrawlerController(Point startPosition, DungeonMap map)
 {
     public Point GridPosition { get; private set; } = startPosition;
-    public int FacingDirection { get; private set; } = 0; // 0=N,1=E,2=S,3=W
+    public int FacingDirection { get; private set; }  // 0=N,3=E,2=S,1=W
 
     private KeyboardState _previousState;
     private readonly double _moveCooldown = 0.15;
