@@ -46,8 +46,7 @@ public class DungeonCrawlerController(Point startPosition, DungeonMap map)
     private void AttemptMove(int direction)
     {
         var offset = FacingOffset();
-        Point target = GridPosition + offset.Multiply(direction);
-
+        var target = GridPosition + offset.Multiply(direction);
 
         if (_map.IsWalkable(target))
         {
@@ -59,9 +58,9 @@ public class DungeonCrawlerController(Point startPosition, DungeonMap map)
     private Point FacingOffset() => FacingDirection switch
     {
         0 => new Point(0, -1), // North
-        1 => new Point(1, 0),  // East
+        1 => new Point(-1, 0),  // East
         2 => new Point(0, 1),  // South
-        3 => new Point(-1, 0), // West
+        3 => new Point(1, 0), // West
         _ => Point.Zero
     };
 
