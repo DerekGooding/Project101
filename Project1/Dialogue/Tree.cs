@@ -5,7 +5,7 @@ namespace Project1.Dialogue;
 // A collection of related dialogue lines
 public class Tree
 {
-    private readonly Dictionary<string, Line> _dialogues = new Dictionary<string, Line>();
+    private readonly Dictionary<string, Line> _dialogues = [];
 
     public Line AddDialogue(string id, string text, string speaker = "")
     {

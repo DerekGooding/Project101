@@ -1,5 +1,7 @@
 ﻿using Project1.Dialogue;
 using Project1.Dungeon;
+using Project1.Inventory;
+using Project1.Inventory.Items;
 
 namespace Project1;
 
@@ -25,6 +27,14 @@ public class Game1 : Game
     private Manager _dialogueManager;
     private Database _dialogueDatabase;
 
+    private Player _playerCharacter;
+    private Inventory.Inventory _inventory;
+    private InventoryUI _inventoryUI;
+    private ItemDatabase _itemDatabase;
+    private ItemPickupManager _itemPickupManager;
+    private Texture2D _itemsTexture;
+    private KeyboardState _previousKeyboardState;
+
     private const float TileSize = 2f;
 
     public Game1()
@@ -45,6 +55,11 @@ public class Game1 : Game
         _map = new Map();
         _player = new Controller(new Point(1, 1), _map);
         _camera = new Camera();
+
+        _playerCharacter = new Player();
+        _inventory = _playerCharacter.Inventory;
+
+        _itemDatabase = CreateItemDatabase();
 
         base.Initialize();
     }
@@ -74,28 +89,54 @@ public class Game1 : Game
         {
             LightingEnabled = false,
         };
+
+        _itemsTexture = new Texture2D(GraphicsDevice, 32, 32);
+        var colorData = new Color[32 * 32];
+        for (var i = 0; i < colorData.Length; i++)
+            colorData[i] = Color.White;
+        _itemsTexture.SetData(colorData);
+
+        _inventoryUI = new InventoryUI(this, _spriteBatch, _inventory, _compassFont, _itemsTexture);
+
+        _itemPickupManager = new ItemPickupManager(_playerCharacter, _spriteBatch, _compassFont, _itemsTexture);
+
+        _itemPickupManager.AddPickup(new ItemPickup(new Point(1, 1), _itemDatabase.GetItem("health_potion_small"), 3));
+        _itemPickupManager.AddPickup(new ItemPickup(new Point(3, 3), _itemDatabase.GetItem("rusty_key")));
+        _itemPickupManager.AddPickup(new ItemPickup(new Point(1, 5), _itemDatabase.GetItem("gold_coin"), 25));
+
+        _inventory.AddItem(_itemDatabase.GetItem("sword"));
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-        Keyboard.GetState().IsKeyDown(Keys.Escape))
-        {
-            Exit();
-        }
+        var keyState = Keyboard.GetState();
 
-        // Update dialogue first - if active, don't update player movement
-        if (_dialogueManager.IsActive)
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || IsKeyPressed(Keys.Escape, keyState)) Exit();
+
+        if (IsKeyPressed(Keys.I, keyState)) _inventoryUI.Toggle();
+
+        if (_inventoryUI.IsVisible)
         {
-            _dialogueManager.Update(gameTime);
+            _inventoryUI.Update(gameTime, keyState);
+        }
+        else if (_dialogueManager.IsActive)
+        {
+            _dialogueManager.Update(gameTime, keyState);
         }
         else
         {
-            _player.Update(gameTime);
+            _camera.Update(_player.GetWorldPosition(TileSize), _player.Rotation);
+            _player.Update(gameTime, keyState);
 
-            // Check for dialogue triggers
+            _itemPickupManager.CheckPickups(_player.GridPosition);
+
+            if (IsKeyPressed(Keys.F, keyState))
+            {
+                _itemPickupManager.CheckPickups(_player.GridPosition);
+            }
+
             var trigger = _dialogueDatabase.GetTriggerAtPosition(_player.GridPosition);
-            if (trigger != null && Keyboard.GetState().IsKeyDown(Keys.E))
+            if (trigger != null && IsKeyPressed(Keys.E, keyState))
             {
                 var tree = _dialogueDatabase.GetDialogueTree(trigger.DialogueTreeId);
                 if (tree != null)
@@ -105,7 +146,7 @@ public class Game1 : Game
             }
         }
 
-        _camera.Update(_player.GetWorldPosition(TileSize), _player.Rotation);
+        _previousKeyboardState = keyState;
 
         base.Update(gameTime);
     }
@@ -124,12 +165,21 @@ public class Game1 : Game
         {
             DrawDialogueTriggerIndicators();
         }
+        DrawHUD();
+        _itemPickupManager.DrawPickupIndicators(_player.GridPosition);
         _spriteBatch.End();
 
         if (_dialogueManager.IsActive)
         {
             _spriteBatch.Begin();
             _dialogueManager.Draw();
+            _spriteBatch.End();
+        }
+
+        if (_inventoryUI.IsVisible)
+        {
+            _spriteBatch.Begin();
+            _inventoryUI.Draw();
             _spriteBatch.End();
         }
 
@@ -326,5 +376,57 @@ public class Game1 : Game
             var screenPos = new Vector2(GraphicsDevice.Viewport.Width / 2, 100);
             _spriteBatch.DrawString(_compassFont, "Press E to talk", screenPos, Color.Yellow);
         }
+    }
+
+    private ItemDatabase CreateItemDatabase()
+    {
+        var database = new ItemDatabase();
+
+        // Register some basic items
+        database.RegisterItem(new HealthPotion("health_potion_small", "Small Health Potion", 20));
+        database.RegisterItem(new HealthPotion("health_potion_large", "Large Health Potion", 50));
+        database.RegisterItem(new Key("rusty_key", "Rusty Key", "door_1"));
+        database.RegisterItem(new Item("gold_coin", "Gold Coin", "A shiny gold coin", ItemType.Treasure, true, 99));
+        database.RegisterItem(new Item("sword", "Iron Sword", "A basic iron sword", ItemType.Weapon));
+        database.RegisterItem(new Item("shield", "Wooden Shield", "A sturdy wooden shield", ItemType.Armor));
+
+        return database;
+    }
+
+    private bool IsKeyPressed(Keys key, KeyboardState currentState) => currentState.IsKeyDown(key) && !_previousKeyboardState.IsKeyDown(key);
+
+    private void DrawHUD()
+    {
+        // Draw health bar
+        var healthBarWidth = 200;
+        var healthBarHeight = 20;
+        var healthBarX = 20;
+        var healthBarY = GraphicsDevice.Viewport.Height - healthBarHeight - 20;
+
+        // Draw health bar background
+        var backgroundRect = new Rectangle(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
+        _spriteBatch.Draw(_wallTexture, backgroundRect, Color.DarkRed);
+
+        // Draw current health
+        var healthPercentage = (float)_playerCharacter.Health / _playerCharacter.MaxHealth;
+        var healthRect = new Rectangle(healthBarX, healthBarY, (int)(healthBarWidth * healthPercentage), healthBarHeight);
+        _spriteBatch.Draw(_wallTexture, healthRect, Color.Red);
+
+        // Draw health text
+        var healthText = $"{_playerCharacter.Health}/{_playerCharacter.MaxHealth}";
+        var textSize = _compassFont.MeasureString(healthText);
+        var textPosition = new Vector2(
+            healthBarX + ((healthBarWidth - textSize.X) / 2),
+            healthBarY + ((healthBarHeight - textSize.Y) / 2)
+        );
+        _spriteBatch.DrawString(_compassFont, healthText, textPosition, Color.White);
+
+        // Draw inventory hint
+        var inventoryHint = "Press I for Inventory";
+        var hintPosition = new Vector2(
+            GraphicsDevice.Viewport.Width - _compassFont.MeasureString(inventoryHint).X - 20,
+            20
+        );
+        _spriteBatch.DrawString(_compassFont, inventoryHint, hintPosition, Color.LightGray);
     }
 }

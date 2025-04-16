@@ -33,7 +33,7 @@ public class Manager
 
         // Create a 1x1 white texture for drawing boxes
         _dialogueBoxTexture = new Texture2D(game.GraphicsDevice, 1, 1);
-        _dialogueBoxTexture.SetData(new[] { Color.White });
+        _dialogueBoxTexture.SetData([Color.White]);
         _optionBoxTexture = _dialogueBoxTexture;
 
         // Set dialogue box to bottom third of screen
@@ -61,12 +61,10 @@ public class Manager
         _currentLine = null;
     }
 
-    public void Update(GameTime gameTime)
+    public void Update(GameTime gameTime, KeyboardState keyboardState)
     {
         if (!_isActive || _currentLine == null)
             return;
-
-        var keyboardState = Keyboard.GetState();
 
         // Handle selecting options
         if (_currentLine.Options.Count > 0)
@@ -129,7 +127,7 @@ public class Manager
         {
             textPosition.Y += _font.MeasureString(_currentLine.Text).Y + 20;
 
-            for (int i = 0; i < _currentLine.Options.Count; i++)
+            for (var i = 0; i < _currentLine.Options.Count; i++)
             {
                 var optionText = $"> {_currentLine.Options[i].Text}";
                 var color = i == _selectedOption ? _selectedOptionColor : _textColor;

@@ -10,10 +10,9 @@ public class Controller(Point startPosition, Map map)
     private double _moveTimer;
     private readonly Map _map = map;
 
-    public void Update(GameTime gameTime)
+    public void Update(GameTime gameTime, KeyboardState currentState)
     {
         _moveTimer += gameTime.ElapsedGameTime.TotalSeconds;
-        var currentState = Keyboard.GetState();
 
         if (_moveTimer >= _moveCooldown)
         {
