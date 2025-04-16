@@ -19,8 +19,6 @@ public class Game1 : Game
     private VertexPositionColorTexture[] _floorVertices;
     private short[] _floorIndices;
 
-    private VertexPositionColor[] _debugVertices;
-
     private BasicEffect _basicEffect;
     private DungeonMap _map;
     private DungeonCrawlerController _player;
@@ -47,14 +45,6 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        _debugVertices = new VertexPositionColor[6];
-        _debugVertices[0] = new VertexPositionColor(new Vector3(-10, 0, -10), Color.Red);
-        _debugVertices[1] = new VertexPositionColor(new Vector3(10, 0, -10), Color.Green);
-        _debugVertices[2] = new VertexPositionColor(new Vector3(10, 0, 10), Color.Blue);
-        _debugVertices[3] = new VertexPositionColor(new Vector3(-10, 0, -10), Color.Red);
-        _debugVertices[4] = new VertexPositionColor(new Vector3(10, 0, 10), Color.Blue);
-        _debugVertices[5] = new VertexPositionColor(new Vector3(-10, 0, 10), Color.Yellow);
 
         var vertices = CreateCubeVertices(TileSize);
         _cubeVertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
