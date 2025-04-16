@@ -1,8 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Project1.Dungeon;
 
-namespace Project1;
-
-public class DungeonCamera
+public class Camera
 {
     public Matrix View { get; private set; }
     public Matrix Projection { get; private set; }

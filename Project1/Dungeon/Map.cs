@@ -1,12 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿namespace Project1.Dungeon;
 
-namespace Project1;
-
-public class DungeonMap
+public class Map
 {
     private readonly int[,] _tiles;
 
-    public DungeonMap() => _tiles = new int[,]
+    public Map() => _tiles = new int[,]
         {
             { 1, 1, 1, 1, 1 },
             { 1, 0, 0, 0, 1 },

@@ -1,17 +1,14 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+﻿namespace Project1.Dungeon;
 
-namespace Project1;
-
-public class DungeonCrawlerController(Point startPosition, DungeonMap map)
+public class Controller(Point startPosition, Map map)
 {
     public Point GridPosition { get; private set; } = startPosition;
-    public int FacingDirection { get; private set; }  // 0=N,3=E,2=S,1=W
+    public int FacingDirection { get; private set; } = 2;  // 0=N,3=E,2=S,1=W
 
     private KeyboardState _previousState;
     private readonly double _moveCooldown = 0.15;
     private double _moveTimer;
-    private readonly DungeonMap _map = map;
+    private readonly Map _map = map;
 
     public void Update(GameTime gameTime)
     {
@@ -69,4 +66,6 @@ public class DungeonCrawlerController(Point startPosition, DungeonMap map)
     public Vector3 GetWorldPosition(float tileSize) => new(GridPosition.X * tileSize, 0, GridPosition.Y * tileSize);
 
     public Quaternion Rotation => Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians(FacingDirection * 90));
+
+    public bool IsAtPosition(Point position) => GridPosition == position;
 }

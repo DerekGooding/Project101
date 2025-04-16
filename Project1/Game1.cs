@@ -1,7 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using System.Linq;
+﻿using Project1.Dialogue;
+using Project1.Dungeon;
 
 namespace Project1;
 
@@ -20,24 +18,33 @@ public class Game1 : Game
     private short[] _floorIndices;
 
     private BasicEffect _basicEffect;
-    private DungeonMap _map;
-    private DungeonCrawlerController _player;
-    private DungeonCamera _camera;
+    private Map _map;
+    private Controller _player;
+    private Camera _camera;
+
+    private Manager _dialogueManager;
+    private Database _dialogueDatabase;
 
     private const float TileSize = 2f;
 
     public Game1()
     {
-        _graphics = new GraphicsDeviceManager(this);
+        _graphics = new GraphicsDeviceManager(this)
+        {
+            PreferredBackBufferWidth = 1280,
+            PreferredBackBufferHeight = 720
+        };
+        _graphics.ApplyChanges();
+
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
 
     protected override void Initialize()
     {
-        _map = new DungeonMap();
-        _player = new DungeonCrawlerController(new Point(2, 2), _map);
-        _camera = new DungeonCamera();
+        _map = new Map();
+        _player = new Controller(new Point(1, 1), _map);
+        _camera = new Camera();
 
         base.Initialize();
     }
@@ -45,6 +52,9 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+        _dialogueManager = new Manager(this, _spriteBatch, Content.Load<SpriteFont>("CompassFont"));
+        _dialogueDatabase = CreateDialogueDatabase();
 
         var vertices = CreateCubeVertices(TileSize);
         _cubeVertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
@@ -69,12 +79,32 @@ public class Game1 : Game
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-            Keyboard.GetState().IsKeyDown(Keys.Escape))
+        Keyboard.GetState().IsKeyDown(Keys.Escape))
         {
             Exit();
         }
 
-        _player.Update(gameTime);
+        // Update dialogue first - if active, don't update player movement
+        if (_dialogueManager.IsActive)
+        {
+            _dialogueManager.Update(gameTime);
+        }
+        else
+        {
+            _player.Update(gameTime);
+
+            // Check for dialogue triggers
+            var trigger = _dialogueDatabase.GetTriggerAtPosition(_player.GridPosition);
+            if (trigger != null && Keyboard.GetState().IsKeyDown(Keys.E))
+            {
+                var tree = _dialogueDatabase.GetDialogueTree(trigger.DialogueTreeId);
+                if (tree != null)
+                {
+                    _dialogueManager.StartDialogue(tree, trigger.StartDialogueId);
+                }
+            }
+        }
+
         _camera.Update(_player.GetWorldPosition(TileSize), _player.Rotation);
 
         base.Update(gameTime);
@@ -90,7 +120,18 @@ public class Game1 : Game
 
         _spriteBatch.Begin();
         DrawCompass(_spriteBatch);
+        if (!_dialogueManager.IsActive)
+        {
+            DrawDialogueTriggerIndicators();
+        }
         _spriteBatch.End();
+
+        if (_dialogueManager.IsActive)
+        {
+            _spriteBatch.Begin();
+            _dialogueManager.Draw();
+            _spriteBatch.End();
+        }
 
         base.Draw(gameTime);
     }
@@ -245,6 +286,45 @@ public class Game1 : Game
                     }
                 }
             }
+        }
+    }
+
+    private Database CreateDialogueDatabase()
+    {
+        var database = new Database();
+
+        // Create a simple dialogue tree
+        var welcomeTree = new Tree();
+        welcomeTree.AddDialogue("start", "Welcome to the dungeon, brave adventurer!", "Guardian")
+            .AddOption("Who are you?", "who")
+            .AddOption("What is this place?", "place")
+            .AddOption("I'll be on my way.", "END");
+
+        welcomeTree.AddDialogue("who", "I am the guardian of this dungeon. I've been here for centuries.", "Guardian")
+            .AddOption("What is this place?", "place")
+            .AddOption("I'll be on my way.", "END");
+
+        welcomeTree.AddDialogue("place", "This is the Dungeon of Eternal Shadows. Many treasures lie within... and many dangers.", "Guardian")
+            .AddOption("Who are you?", "who")
+            .AddOption("I'll be on my way.", "END");
+
+        database.AddDialogueTree("welcome", welcomeTree);
+
+        // Add a trigger in the dungeon
+        database.AddTrigger(new Trigger(new Point(2, 1), "welcome", "start"));
+
+        return database;
+    }
+
+    private void DrawDialogueTriggerIndicators()
+    {
+        var position = _player.GridPosition;
+        var trigger = _dialogueDatabase.GetTriggerAtPosition(position);
+
+        if (trigger != null)
+        {
+            var screenPos = new Vector2(GraphicsDevice.Viewport.Width / 2, 100);
+            _spriteBatch.DrawString(_compassFont, "Press E to talk", screenPos, Color.Yellow);
         }
     }
 }
