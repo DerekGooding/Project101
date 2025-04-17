@@ -30,7 +30,7 @@ public class Game1 : Game
     private float _damageDisplayDuration = 1.5f;
     private Vector2 _damagePosition;
     private bool _displayingDamage = false;
-    private Random _random = new Random();
+    private readonly Random _random = Random.Shared;
     private int _baseDamage = 100;
 
     public Game1()
@@ -146,7 +146,7 @@ public class Game1 : Game
             var targetTime = _currentAddition.HitTimings[_currentHitIndex];
 
             // Auto-fail if we exceed the target time by too much
-            if (_hitTimer > targetTime + _hitWindow * 1.5f)
+            if (_hitTimer > targetTime + (_hitWindow * 1.5f))
             {
                 // Failed the sequence
                 FinishAddition(false);
@@ -264,7 +264,7 @@ public class Game1 : Game
 
         // Draw title
         _spriteBatch.DrawString(_titleFont, "ADDITION SYSTEM",
-            new Vector2(titlePos.X - titleSize.X / 2, titlePos.Y), Color.White);
+            new Vector2(titlePos.X - (titleSize.X / 2), titlePos.Y), Color.White);
 
         // Draw instructions
         _spriteBatch.DrawString(_font, "Select an Addition and press ENTER or SPACE to begin:",
@@ -277,7 +277,7 @@ public class Game1 : Game
             var difficultyStars = new string('★', _additions[i].DamageMultipliers.Length);
 
             _spriteBatch.DrawString(_font, _additions[i].Name + " - Difficulty: " + difficultyStars,
-                new Vector2(250, 220 + i * 40), itemColor);
+                new Vector2(250, 220 + (i * 40)), itemColor);
         }
 
         // Draw controls help
@@ -292,7 +292,7 @@ public class Game1 : Game
 
         // Draw addition name
         _spriteBatch.DrawString(_titleFont, _currentAddition.Name,
-            new Vector2(titlePos.X - titleSize.X / 2, titlePos.Y), Color.White);
+            new Vector2(titlePos.X - (titleSize.X / 2), titlePos.Y), Color.White);
 
         // Draw timing bar background
         var barWidth = 600;
@@ -358,7 +358,7 @@ public class Game1 : Game
             var textSize = _damageFont.MeasureString(damageText);
 
             _spriteBatch.DrawString(_damageFont, damageText,
-                new Vector2(_damagePosition.X - textSize.X / 2, _damagePosition.Y), damageColor);
+                new Vector2(_damagePosition.X - (textSize.X / 2), _damagePosition.Y), damageColor);
         }
     }
 
