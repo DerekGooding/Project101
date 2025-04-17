@@ -1,5 +1,4 @@
 ﻿using Project1.Inventory;
-using System;
 
 namespace Project1.Dungeon.Puzzles;
 public class MovableBlock(Map map, Point position) : Hazard(position, HazardType.Obstacle, "A heavy stone block that can be pushed", true)

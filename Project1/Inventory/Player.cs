@@ -1,6 +1,5 @@
 ﻿using Project1.Combat;
 using Project1.Dungeon;
-using System;
 
 namespace Project1.Inventory;
 
@@ -19,7 +18,7 @@ public class Player(Controller controller)
     private Controller _controller = controller;
 
     // Add event for when player levels up
-    public event Action<int> LevelUp;
+    public event Action<int>? LevelUp;
 
     public void Heal(int amount) => Health = Math.Min(Health + amount, MaxHealth);
 

@@ -1,6 +1,4 @@
 ﻿using Project1.Dungeon.Hazards;
-using System;
-using System.Collections.Generic;
 
 namespace Project1.Dungeon.Puzzles;
 

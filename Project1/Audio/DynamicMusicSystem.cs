@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Project1.Audio;
+﻿namespace Project1.Audio;
 
 public class DynamicMusicSystem
 {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Project1.Dialogue;
+﻿namespace Project1.Dialogue;
 
 public class Line(string text, string speaker = "")
 {

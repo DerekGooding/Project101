@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Project1.Dialogue;
+﻿namespace Project1.Dialogue;
 
 // Manages multiple dialogue trees
 public class Database
@@ -10,9 +8,9 @@ public class Database
 
     public void AddDialogueTree(string id, DialogueTree tree) => _dialogueTrees[id] = tree;
 
-    public DialogueTree GetDialogueTree(string id) => _dialogueTrees.TryGetValue(id, out var tree) ? tree : null;
+    public DialogueTree? GetDialogueTree(string id) => _dialogueTrees.TryGetValue(id, out var tree) ? tree : null;
 
     public void AddTrigger(Trigger trigger) => _triggers.Add(trigger);
 
-    public Trigger GetTriggerAtPosition(Point position) => _triggers.FirstOrDefault(t => t.Position == position);
+    public Trigger? GetTriggerAtPosition(Point position) => _triggers.FirstOrDefault(t => t.Position == position);
 }

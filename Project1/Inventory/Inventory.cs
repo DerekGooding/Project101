@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Project1.Inventory;
+﻿namespace Project1.Inventory;
 
 public class Inventory(int capacity = 20)
 {
@@ -12,11 +9,11 @@ public class Inventory(int capacity = 20)
     public int Count => _items.Count;
     public int Capacity => _capacity;
 
-    public event Action<Item> ItemAdded;
-    public event Action<Item> ItemRemoved;
-    public event Action InventoryChanged;
+    public event Action<Item>? ItemAdded;
+    public event Action<Item>? ItemRemoved;
+    public event Action? InventoryChanged;
 
-    private Weapon _equippedWeapon;
+    private Weapon? _equippedWeapon;
 
     public bool AddItem(Item item, int count = 1)
     {

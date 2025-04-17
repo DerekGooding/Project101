@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Project1.Inventory;
+﻿namespace Project1.Inventory;
 
 public class ItemDatabase
 {
@@ -8,5 +6,5 @@ public class ItemDatabase
 
     public void RegisterItem(Item item) => _items[item.Id] = item;
 
-    public Item GetItem(string id) => _items.TryGetValue(id, out var item) ? item : null;
+    public Item? GetItem(string id) => _items.TryGetValue(id, out var item) ? item : null;
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Project1.Dialogue;
+﻿namespace Project1.Dialogue;
 
 // A collection of related dialogue lines
 public class DialogueTree
@@ -14,5 +12,5 @@ public class DialogueTree
         return dialogue;
     }
 
-    public Line GetDialogue(string id) => _dialogues.TryGetValue(id, out var dialogue) ? dialogue : null;
+    public Line? GetDialogue(string id) => _dialogues.TryGetValue(id, out var dialogue) ? dialogue : null;
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Project1.Dungeon;
+﻿namespace Project1.Dungeon;
 
 public class Map
 {
@@ -30,13 +27,13 @@ public class Map
     public bool IsWalkable(Point pos) =>
         pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height && _tiles[pos.Y, pos.X].IsWalkable;
 
-    public Tile GetTile(Point pos) =>
+    public Tile? GetTile(Point pos) =>
         pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height ? _tiles[pos.Y, pos.X] : null;
 
     public TileType GetTileType(Point pos) =>
         pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height ? _tiles[pos.Y, pos.X].Type : TileType.Wall;
 
-    public void SetTile(Point pos, TileType type, bool isLocked = false, string keyId = null)
+    public void SetTile(Point pos, TileType type, bool isLocked = false, string? keyId = null)
     {
         if (pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height)
         {

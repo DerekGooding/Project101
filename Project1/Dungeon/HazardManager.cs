@@ -1,6 +1,4 @@
 ﻿using Project1.Inventory;
-using System;
-using System.Collections.Generic;
 
 namespace Project1.Dungeon;
 
@@ -59,7 +57,7 @@ public class HazardManager
         }
     }
 
-    public Hazard GetHazardAtPosition(Point position) =>
+    public Hazard? GetHazardAtPosition(Point position) =>
         _hazards.FirstOrDefault(h => h.Position == position && h.IsVisible);
 
     public void ResetAllHazards()

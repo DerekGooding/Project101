@@ -9,8 +9,8 @@ public class DialogueManager
     private readonly Texture2D _dialogueBoxTexture;
     private readonly Texture2D _optionBoxTexture;
 
-    private DialogueTree _currentTree;
-    private Line _currentLine;
+    private DialogueTree? _currentTree;
+    private Line? _currentLine;
     private int _selectedOption = 0;
     private bool _isActive = false;
     private KeyboardState _previousKeyboardState;
@@ -25,7 +25,7 @@ public class DialogueManager
 
     public bool IsActive => _isActive;
 
-    public DialogueManager(Game game, SpriteBatch spriteBatch, SpriteFont font, SpriteFont optionFont = null)
+    public DialogueManager(Game game, SpriteBatch spriteBatch, SpriteFont font, SpriteFont? optionFont = null)
     {
         _spriteBatch = spriteBatch;
         _font = font;
@@ -86,7 +86,7 @@ public class DialogueManager
                 }
                 else
                 {
-                    _currentLine = _currentTree.GetDialogue(nextDialogueId);
+                    _currentLine = _currentTree?.GetDialogue(nextDialogueId);
                     _selectedOption = 0;
                 }
             }

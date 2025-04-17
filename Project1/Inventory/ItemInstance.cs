@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Project1.Inventory;
+﻿namespace Project1.Inventory;
 
 public class ItemInstance(Item item, int count = 1)
 {

@@ -1,5 +1,4 @@
 ﻿using Project1.Inventory;
-using System;
 
 namespace Project1.Dungeon.Hazards;
 

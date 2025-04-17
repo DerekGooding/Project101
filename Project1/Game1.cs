@@ -143,11 +143,11 @@ public class Game1 : Game
 
         _itemPickupManager = new ItemPickupManager(_playerCharacter, _spriteBatch, _compassFont, _itemsTexture);
 
-        _itemPickupManager.AddPickup(new ItemPickup(new Point(1, 1), _itemDatabase.GetItem("health_potion_small"), 3));
-        _itemPickupManager.AddPickup(new ItemPickup(new Point(3, 3), _itemDatabase.GetItem("rusty_key")));
-        _itemPickupManager.AddPickup(new ItemPickup(new Point(1, 5), _itemDatabase.GetItem("gold_coin"), 25));
+        _itemPickupManager.AddPickup(new ItemPickup(new Point(1, 1), _itemDatabase.GetItem("health_potion_small")!, 3));
+        _itemPickupManager.AddPickup(new ItemPickup(new Point(3, 3), _itemDatabase.GetItem("rusty_key")!));
+        _itemPickupManager.AddPickup(new ItemPickup(new Point(1, 5), _itemDatabase.GetItem("gold_coin")!, 25));
 
-        _inventory.AddItem(_itemDatabase.GetItem("sword"));
+        _inventory.AddItem(_itemDatabase.GetItem("sword")!);
 
         _enemyManager = new EnemyManager(_spriteBatch, _wallTexture, _playerCharacter, _compassFont, _map);
         _combatManager = new CombatManager(_playerCharacter, _player, _enemyManager, _spriteBatch, _compassFont, GraphicsDevice);

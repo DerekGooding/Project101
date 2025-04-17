@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Project1.Inventory;
+﻿namespace Project1.Inventory;
 
 public class ItemPickupManager(Player player, SpriteBatch spriteBatch, SpriteFont font, Texture2D itemTexture)
 {

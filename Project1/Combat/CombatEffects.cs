@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using System;
 
 namespace Project1.Combat;
 

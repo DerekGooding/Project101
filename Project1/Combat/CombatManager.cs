@@ -1,7 +1,5 @@
 ﻿using Project1.Dungeon;
 using Project1.Inventory;
-using System;
-using System.Collections.Generic;
 
 namespace Project1.Combat;
 

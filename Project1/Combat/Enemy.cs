@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Project1.Combat;
+﻿namespace Project1.Combat;
 public class Enemy(string id, string name, int health, int attackPower, int defense, Point position, int experienceValue = 10)
 {
     public string Id { get; } = id;

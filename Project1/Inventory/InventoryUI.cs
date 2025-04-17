@@ -1,13 +1,11 @@
-﻿using System;
-
-namespace Project1.Inventory;
+﻿namespace Project1.Inventory;
 
 public class InventoryUI
 {
     private readonly SpriteBatch _spriteBatch;
     private readonly Texture2D _backgroundTexture;
     private readonly Texture2D _slotTexture;
-    private readonly Texture2D _itemsTexture;
+    private readonly Texture2D? _itemsTexture;
     private readonly SpriteFont _font;
     private readonly Inventory _inventory;
 
@@ -21,7 +19,7 @@ public class InventoryUI
 
     public bool IsVisible => _isVisible;
 
-    public InventoryUI(Game game, SpriteBatch spriteBatch, Inventory inventory, SpriteFont font, Texture2D itemsTexture = null)
+    public InventoryUI(Game game, SpriteBatch spriteBatch, Inventory inventory, SpriteFont font, Texture2D? itemsTexture = null)
     {
         _spriteBatch = spriteBatch;
         _inventory = inventory;

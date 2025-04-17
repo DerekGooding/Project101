@@ -1,7 +1,5 @@
 ﻿using Project1.Dungeon;
 using Project1.Inventory;
-using System;
-using System.Collections.Generic;
 
 namespace Project1.Combat;
 
@@ -53,7 +51,7 @@ public class EnemyManager(SpriteBatch spriteBatch, Texture2D enemyTexture, Playe
         }
     }
 
-    public Enemy GetEnemyAtPosition(Point position) => _enemies.FirstOrDefault(e => e.GridPosition == position);
+    public Enemy? GetEnemyAtPosition(Point position) => _enemies.FirstOrDefault(e => e.GridPosition == position);
 
     public void DrawEnemies3D(Matrix view, Matrix projection, float tileSize, Model enemyModel)
     {
