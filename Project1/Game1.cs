@@ -160,7 +160,6 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.Black);
 
         DrawFloor(_camera.View, _camera.Projection);
-
         DrawDungeon(_camera.Projection, _camera.View, TileSize);
 
         _spriteBatch.Begin();
@@ -173,15 +172,8 @@ public class Game1 : Game
         _itemPickupManager.DrawPickupIndicators(_player.GridPosition);
 
         _minimap.Draw(_player.GridPosition);
-        if (_dialogueManager.IsActive)
-        {
-            _dialogueManager.Draw();
-        }
-
-        if (_inventoryUI.IsVisible)
-        {
-            _inventoryUI.Draw();
-        }
+        _dialogueManager.Draw();
+        _inventoryUI.Draw();
 
         _spriteBatch.End();
         base.Draw(gameTime);
@@ -425,7 +417,7 @@ public class Game1 : Game
         // Draw inventory hint
         var inventoryHint = "Press I for Inventory";
         var hintPosition = new Vector2(
-            GraphicsDevice.Viewport.Width - _compassFont.MeasureString(inventoryHint).X - 20,
+            GraphicsDevice.Viewport.Width - _compassFont.MeasureString(inventoryHint).X - 220,
             20
         );
         _spriteBatch.DrawString(_compassFont, inventoryHint, hintPosition, Color.LightGray);
