@@ -12,9 +12,15 @@ public class Game1 : Game
 
     private VertexBuffer _cubeVertexBuffer;
     private IndexBuffer _cubeIndexBuffer;
+    private SpriteFont _compassFont;
+
     private Texture2D _wallTexture;
     private Texture2D _floorTexture;
-    private SpriteFont _compassFont;
+    private Texture2D _waterTexture;
+    private Texture2D _lavaTexture;
+    private Texture2D _doorTexture;
+    private Texture2D _lockedDoorTexture;
+    private Texture2D _stairsTexture;
 
     private VertexPositionColorTexture[] _floorVertices;
     private short[] _floorIndices;
@@ -54,8 +60,12 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _map = new Map();
-        _player = new Controller(new Point(1, 1), _map);
+        _map = new Map(30, 30);
+        _map.GenerateDungeon();
+
+        var startPos = _map.GetStartPosition();
+
+        _player = new Controller(startPos, _map);
         _camera = new Camera();
 
         _playerCharacter = new Player();
@@ -186,7 +196,6 @@ public class Game1 : Game
 
         _basicEffect.TextureEnabled = true;
         _basicEffect.VertexColorEnabled = false;
-        _basicEffect.Texture = _wallTexture;
         _basicEffect.Projection = projection;
         _basicEffect.View = view;
 
@@ -194,15 +203,40 @@ public class Game1 : Game
         {
             for (var x = 0; x < _map.Width; x++)
             {
-                if (!_map.IsWalkable(new Point(x, y)))
-                {
-                    _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * tileSize, 0, y * tileSize));
+                var pos = new Point(x, y);
+                var tile = _map.GetTile(pos);
 
-                    foreach (var pass in _basicEffect.CurrentTechnique.Passes)
-                    {
-                        pass.Apply();
-                        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CubeIndices.Length / 3);
-                    }
+                if (tile == null) continue;
+
+                switch (tile.Type)
+                {
+                    case TileType.Wall:
+                        // Draw wall
+                        _basicEffect.Texture = _wallTexture;
+                        _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * tileSize, 0, y * tileSize));
+                        foreach (var pass in _basicEffect.CurrentTechnique.Passes)
+                        {
+                            pass.Apply();
+                            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CubeIndices.Length / 3);
+                        }
+                        break;
+
+                    case TileType.Door:
+                        // Draw door (maybe different texture based on locked status)
+                        _basicEffect.Texture = tile.IsLocked ? _lockedDoorTexture : _doorTexture;
+                        _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * tileSize, 0, y * tileSize));
+                        foreach (var pass in _basicEffect.CurrentTechnique.Passes)
+                        {
+                            pass.Apply();
+                            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CubeIndices.Length / 3);
+                        }
+                        break;
+
+                    case TileType.Water:
+                    case TileType.Lava:
+                    case TileType.Stairs:
+                        // These are floor types, drawn separately
+                        break;
                 }
             }
         }
@@ -304,29 +338,54 @@ public class Game1 : Game
         _basicEffect.View = view;
         _basicEffect.Projection = projection;
         _basicEffect.TextureEnabled = true;
-        _basicEffect.Texture = _floorTexture;
         _basicEffect.VertexColorEnabled = true;
 
-        foreach (var y in Enumerable.Range(0, _map.Height))
+        for (var y = 0; y < _map.Height; y++)
         {
-            foreach (var x in Enumerable.Range(0, _map.Width))
+            for (var x = 0; x < _map.Width; x++)
             {
-                if (_map.IsWalkable(new Point(x, y)))
-                {
-                    _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * TileSize, 0, y * TileSize));
+                var pos = new Point(x, y);
+                var tile = _map.GetTile(pos);
 
-                    foreach (var pass in _basicEffect.CurrentTechnique.Passes)
-                    {
-                        pass.Apply();
-                        GraphicsDevice.DrawUserIndexedPrimitives(
-                            PrimitiveType.TriangleList,
-                            _floorVertices,
-                            0,
-                            _floorVertices.Length,
-                            _floorIndices,
-                            0,
-                            _floorIndices.Length / 3);
-                    }
+                if (tile == null) continue;
+
+                switch (tile.Type)
+                {
+                    case TileType.Floor:
+                        _basicEffect.Texture = _floorTexture;
+                        _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * TileSize, 0, y * TileSize));
+                        break;
+
+                    case TileType.Water:
+                        _basicEffect.Texture = _waterTexture;
+                        _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * TileSize, -0.2f, y * TileSize));
+                        break;
+
+                    case TileType.Lava:
+                        _basicEffect.Texture = _lavaTexture;
+                        _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * TileSize, -0.2f, y * TileSize));
+                        break;
+
+                    case TileType.Stairs:
+                        _basicEffect.Texture = _stairsTexture;
+                        _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * TileSize, 0, y * TileSize));
+                        break;
+
+                    default:
+                        continue;
+                }
+
+                foreach (var pass in _basicEffect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    GraphicsDevice.DrawUserIndexedPrimitives(
+                        PrimitiveType.TriangleList,
+                        _floorVertices,
+                        0,
+                        _floorVertices.Length,
+                        _floorIndices,
+                        0,
+                        _floorIndices.Length / 3);
                 }
             }
         }
