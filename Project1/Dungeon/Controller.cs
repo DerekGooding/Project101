@@ -1,4 +1,6 @@
-﻿namespace Project1.Dungeon;
+﻿using Project1.Combat;
+
+namespace Project1.Dungeon;
 
 public class Controller(Point startPosition, Map map)
 {
@@ -67,4 +69,19 @@ public class Controller(Point startPosition, Map map)
     public Quaternion Rotation => Quaternion.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians(FacingDirection * 90));
 
     public bool IsAtPosition(Point position) => GridPosition == position;
+
+    public void Attack(EnemyManager enemyManager)
+    {
+        // Get the position in front of the player
+        var offset = FacingOffset();
+        var targetPos = GridPosition + offset;
+
+        // Check if there's an enemy at that position
+        var enemy = enemyManager.GetEnemyAtPosition(targetPos);
+        if (enemy != null)
+        {
+            // Attack the enemy
+            enemyManager.Player.Attack(enemy);
+        }
+    }
 }

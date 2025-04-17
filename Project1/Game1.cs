@@ -1,4 +1,5 @@
-﻿using Project1.Dialogue;
+﻿using Project1.Combat;
+using Project1.Dialogue;
 using Project1.Dungeon;
 using Project1.Inventory;
 using Project1.Inventory.Items;
@@ -7,6 +8,10 @@ namespace Project1;
 
 public class Game1 : Game
 {
+    private EnemyManager _enemyManager;
+    private CombatManager _combatManager;
+    private Model _enemyModel;
+
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
@@ -120,6 +125,13 @@ public class Game1 : Game
         _itemPickupManager.AddPickup(new ItemPickup(new Point(1, 5), _itemDatabase.GetItem("gold_coin"), 25));
 
         _inventory.AddItem(_itemDatabase.GetItem("sword"));
+
+        _enemyManager = new EnemyManager(_spriteBatch, _wallTexture, _playerCharacter, _compassFont, _map);
+        _combatManager = new CombatManager(_playerCharacter, _player, _enemyManager, _spriteBatch, _compassFont, GraphicsDevice);
+
+        _enemyManager.AddEnemy(new Enemy("goblin", "Goblin", 30, 5, 2, new Point(3, 1), 20));
+        _enemyManager.AddEnemy(new Enemy("skeleton", "Skeleton", 40, 7, 3, new Point(1, 3), 30));
+        _enemyManager.AddEnemy(new Enemy("troll", "Troll", 80, 12, 5, new Point(3, 5), 50));
     }
 
     protected override void Update(GameTime gameTime)
@@ -160,6 +172,9 @@ public class Game1 : Game
                     _dialogueManager.StartDialogue(tree, trigger.StartDialogueId);
                 }
             }
+
+            _enemyManager.Update(gameTime);
+            _combatManager.Update(gameTime, keyState);
         }
 
         _previousKeyboardState = keyState;
@@ -174,7 +189,12 @@ public class Game1 : Game
         DrawFloor(_camera.View, _camera.Projection);
         DrawDungeon(_camera.Projection, _camera.View, TileSize);
 
+        _enemyManager.DrawEnemies3D(_camera.View, _camera.Projection, TileSize, _enemyModel);
+
         _spriteBatch.Begin();
+        _enemyManager.DrawHealthBars();
+        _combatManager.DrawDamageIndicators(_camera.View, _camera.Projection);
+
         DrawCompass(_spriteBatch);
         if (!_dialogueManager.IsActive)
         {

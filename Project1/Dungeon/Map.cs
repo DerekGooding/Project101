@@ -55,7 +55,6 @@ public class Map
         AddFeatures();
     }
 
-
     private class Room
     {
         public int X, Y, Width, Height;
@@ -224,7 +223,7 @@ public class Map
             var doorPos = _random.Next(0, 2) == 0 ? outsidePos : insidePos;
 
             // Special rooms have locked doors
-            var isLocked = room.RoomType == "treasure" || room.RoomType == "boss";
+            var isLocked = room.RoomType is "treasure" or "boss";
             var keyId = isLocked ? $"key_{room.RoomType}_{_rooms.IndexOf(room)}" : null;
 
             SetTile(doorPos, TileType.Door, isLocked, keyId);
@@ -330,15 +329,11 @@ public class Map
         }
     }
 
-    private void AddStairs(Room room)
-    {
+    private void AddStairs(Room room) =>
         // Place stairs in the center of the room
         SetTile(room.Center, TileType.Stairs);
-    }
 
-    public Point GetStartPosition()
-    {
+    public Point GetStartPosition() =>
         // Return the center of the first room as the player start position
-        return _rooms.Count > 0 ? _rooms[0].Center : new Point(1, 1);
-    }
+        _rooms.Count > 0 ? _rooms[0].Center : new Point(1, 1);
 }

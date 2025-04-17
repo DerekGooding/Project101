@@ -16,6 +16,8 @@ public class Inventory(int capacity = 20)
     public event Action<Item> ItemRemoved;
     public event Action InventoryChanged;
 
+    private Weapon _equippedWeapon;
+
     public bool AddItem(Item item, int count = 1)
     {
         // Try to add to existing stack first
@@ -104,5 +106,18 @@ public class Inventory(int capacity = 20)
             }
             InventoryChanged?.Invoke();
         }
+    }
+
+    public Weapon GetEquippedWeapon() => _equippedWeapon;
+
+    public void EquipWeapon(Weapon weapon)
+    {
+        if (_equippedWeapon != null)
+        {
+            // Unequip the current weapon
+            _equippedWeapon = null;
+        }
+        _equippedWeapon = weapon;
+        InventoryChanged?.Invoke();
     }
 }
