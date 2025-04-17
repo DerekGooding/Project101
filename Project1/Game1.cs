@@ -35,6 +35,8 @@ public class Game1 : Game
     private Texture2D _itemsTexture;
     private KeyboardState _previousKeyboardState;
 
+    private Minimap _minimap;
+
     private const float TileSize = 2f;
 
     public Game1()
@@ -67,6 +69,7 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        _minimap = new Minimap(this, _map, _spriteBatch);
 
         _dialogueManager = new Manager(this, _spriteBatch, Content.Load<SpriteFont>("CompassFont"));
         _dialogueDatabase = CreateDialogueDatabase();
@@ -125,8 +128,9 @@ public class Game1 : Game
         }
         else
         {
-            _camera.Update(_player.GetWorldPosition(TileSize), _player.Rotation);
             _player.Update(gameTime, keyState);
+            _camera.Update(_player.GetWorldPosition(TileSize), _player.Rotation);
+            _minimap.UpdateExplored(_player.GridPosition);
 
             _itemPickupManager.CheckPickups(_player.GridPosition);
 
@@ -167,22 +171,19 @@ public class Game1 : Game
         }
         DrawHUD();
         _itemPickupManager.DrawPickupIndicators(_player.GridPosition);
-        _spriteBatch.End();
 
+        _minimap.Draw(_player.GridPosition);
         if (_dialogueManager.IsActive)
         {
-            _spriteBatch.Begin();
             _dialogueManager.Draw();
-            _spriteBatch.End();
         }
 
         if (_inventoryUI.IsVisible)
         {
-            _spriteBatch.Begin();
             _inventoryUI.Draw();
-            _spriteBatch.End();
         }
 
+        _spriteBatch.End();
         base.Draw(gameTime);
     }
 
