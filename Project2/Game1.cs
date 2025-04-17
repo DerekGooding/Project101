@@ -9,6 +9,7 @@ public class Game1 : Game
     private SpriteFont _titleFont;
     private SpriteFont _damageFont;
     private Texture2D _pixel;
+    private Texture2D _squareTexture;
 
     // Game state
     private GameState _currentState = GameState.Menu;
@@ -22,7 +23,7 @@ public class Game1 : Game
     private Addition _currentAddition;
     private int _currentHitIndex = 0;
     private float _hitTimer = 0f;
-    private float _hitWindow = 0.2f; // Time window for successful hit (in seconds)
+    private float _hitWindow = 0.15f; // Time window for successful hit (in seconds)
     private bool _hitSuccessful = false;
     private bool _additionComplete = false;
     private int _finalDamage = 0;
@@ -30,8 +31,24 @@ public class Game1 : Game
     private float _damageDisplayDuration = 1.5f;
     private Vector2 _damagePosition;
     private bool _displayingDamage = false;
-    private readonly Random _random = Random.Shared;
+    private Random _random = new Random();
     private int _baseDamage = 100;
+
+    // Timing square variables
+    private float _rotationAngle = 0f;
+    private float _rotationSpeed = 2f; // Rotation speed in radians per second
+    private float _squareSize = 200f; // Size of the static square
+    private float _movingSquareSize = 500f; // Initial size of the moving square
+    private float _shrinkRate = 400f; // How fast the square shrinks (pixels per second)
+    private Color _staticSquareColor = new Color(50, 50, 200, 150);
+    private Color _movingSquareColor = new Color(200, 50, 50, 150);
+    private Color _hitZoneColor = new Color(50, 200, 50, 100);
+
+    // Feedback message
+    private string _feedbackMessage = "";
+    private float _feedbackTimer = 0f;
+    private float _feedbackDuration = 1.0f;
+    private Color _feedbackColor = Color.Red;
 
     public Game1()
     {
@@ -68,6 +85,10 @@ public class Game1 : Game
         // Create a 1x1 white texture for drawing rectangles
         _pixel = new Texture2D(GraphicsDevice, 1, 1);
         _pixel.SetData([Color.White]);
+
+        // Create a square texture
+        _squareTexture = new Texture2D(GraphicsDevice, 1, 1);
+        _squareTexture.SetData([Color.White]);
     }
 
     protected override void Update(GameTime gameTime)
@@ -93,6 +114,11 @@ public class Game1 : Game
                 break;
         }
 
+        if (_feedbackTimer > 0)
+        {
+            _feedbackTimer -= deltaTime;
+        }
+
         _prevKeyboardState = keyboardState;
         base.Update(gameTime);
     }
@@ -115,6 +141,8 @@ public class Game1 : Game
             _currentAddition = _additions[_selectedAdditionIndex];
             _currentHitIndex = 0;
             _hitTimer = 0f;
+            _movingSquareSize = 500f; // Reset size for the first hit
+            _rotationAngle = 0f;
             _additionComplete = false;
             _currentState = GameState.Combat;
         }
@@ -138,6 +166,13 @@ public class Game1 : Game
             return;
         }
 
+        // Update rotation
+        _rotationAngle += _rotationSpeed * deltaTime;
+
+        // Shrink the moving square
+        _movingSquareSize -= _shrinkRate * deltaTime;
+
+        // Update hit timer
         _hitTimer += deltaTime;
 
         // Check for hit timing
@@ -145,9 +180,12 @@ public class Game1 : Game
         {
             var targetTime = _currentAddition.HitTimings[_currentHitIndex];
 
-            // Auto-fail if we exceed the target time by too much
-            if (_hitTimer > targetTime + (_hitWindow * 1.5f))
+            // Auto-fail if the square gets too small
+            if (_movingSquareSize < _squareSize * 0.5f)
             {
+                // Show "Too Late" message
+                ShowFeedbackMessage("TOO LATE", Color.Red);
+
                 // Failed the sequence
                 FinishAddition(false);
                 return;
@@ -156,10 +194,14 @@ public class Game1 : Game
             // Check if Space was pressed
             if (IsKeyPressed(keyboardState, Keys.Space))
             {
-                if (Math.Abs(_hitTimer - targetTime) < _hitWindow)
+                var sizeRatio = _movingSquareSize / _squareSize;
+
+                // Hit is successful if the moving square is close to the static square size
+                if (sizeRatio is >= 0.9f and <= 1.1f)
                 {
                     // Successful hit
                     _hitSuccessful = true;
+                    ShowFeedbackMessage("GOOD", Color.Green);
                     _currentHitIndex++;
 
                     // Check if addition is complete
@@ -169,12 +211,26 @@ public class Game1 : Game
                     }
                     else
                     {
-                        // Reset timer for next hit
+                        // Reset for next hit, start at a larger size for more challenging hits
+                        _movingSquareSize = 500f + (_currentHitIndex * 50f);
+                        _rotationAngle = 0f;
                         _hitTimer = 0f;
+
+                        // Increase rotation speed for harder hits
+                        _rotationSpeed = 2.0f + (_currentHitIndex * 0.4f);
                     }
                 }
                 else
                 {
+                    if (sizeRatio > 1.1f)
+                    {
+                        ShowFeedbackMessage("TOO SOON", Color.Red);
+                    }
+                    else
+                    {
+                        ShowFeedbackMessage("TOO LATE", Color.Red);
+
+                    }
                     // Failed hit timing
                     FinishAddition(false);
                 }
@@ -199,6 +255,13 @@ public class Game1 : Game
                 _currentState = GameState.Menu;
             }
         }
+    }
+
+    private void ShowFeedbackMessage(string message, Color color)
+    {
+        _feedbackMessage = message;
+        _feedbackColor = color;
+        _feedbackTimer = _feedbackDuration;
     }
 
     private void FinishAddition(bool success)
@@ -287,47 +350,52 @@ public class Game1 : Game
 
     private void DrawCombat()
     {
-        var titlePos = new Vector2(GraphicsDevice.Viewport.Width / 2, 100);
-        var titleSize = _titleFont.MeasureString(_currentAddition.Name);
+        var centerScreen = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
 
         // Draw addition name
+        var titleSize = _titleFont.MeasureString(_currentAddition.Name);
         _spriteBatch.DrawString(_titleFont, _currentAddition.Name,
-            new Vector2(titlePos.X - (titleSize.X / 2), titlePos.Y), Color.White);
+            new Vector2(centerScreen.X - (titleSize.X / 2), 100), Color.White);
 
-        // Draw timing bar background
-        var barWidth = 600;
-        var barHeight = 30;
-        var barX = (GraphicsDevice.Viewport.Width - barWidth) / 2;
-        var barY = 300;
+        // Draw hit counter
+        var hitCounterText = $"Hit {_currentHitIndex + 1}/{_currentAddition.HitTimings.Length}";
+        var counterSize = _font.MeasureString(hitCounterText);
+        _spriteBatch.DrawString(_font, hitCounterText,
+            new Vector2(centerScreen.X - (counterSize.X / 2), 140), Color.White);
 
-        _spriteBatch.Draw(_pixel, new Rectangle(barX, barY, barWidth, barHeight), Color.DarkGray);
+        // Draw hit zone (the green zone that indicates good timing)
+        var hitZoneSize = _squareSize * 1.1f;
+        DrawSquare(centerScreen, hitZoneSize, 0f, _hitZoneColor);
 
-        // Draw timing markers
-        for (var i = 0; i < _currentAddition.HitTimings.Length; i++)
-        {
-            var markerX = barX + (int)(_currentAddition.HitTimings[i] * barWidth / 2);
-            var markerColor = (i < _currentHitIndex) ? Color.Green : Color.Gold;
+        // Draw static square (target)
+        DrawSquare(centerScreen, _squareSize, 0f, _staticSquareColor);
 
-            _spriteBatch.Draw(_pixel, new Rectangle(markerX - 2, barY - 5, 4, barHeight + 10), markerColor);
-        }
-
-        // Draw cursor position based on timer
+        // Draw moving square (player needs to time this to match the static square)
         if (!_additionComplete)
         {
-            var cursorX = barX + (int)(_hitTimer * barWidth / 2);
-            cursorX = Math.Min(cursorX, barX + barWidth); // Clamp to bar width
+            DrawSquareFrame(centerScreen, _movingSquareSize, _rotationAngle, _movingSquareColor);
+        }
 
-            _spriteBatch.Draw(_pixel, new Rectangle(cursorX - 3, barY - 10, 6, barHeight + 20), Color.Red);
+        // Draw feedback message if active
+        if (_feedbackTimer > 0)
+        {
+            // Calculate alpha based on remaining time
+            var alpha = _feedbackTimer / _feedbackDuration;
+            var fadeColor = new Color(_feedbackColor.R, _feedbackColor.G, _feedbackColor.B, (byte)(255 * alpha));
+
+            var feedbackSize = _titleFont.MeasureString(_feedbackMessage);
+            _spriteBatch.DrawString(_titleFont, _feedbackMessage,
+                new Vector2(centerScreen.X - (feedbackSize.X / 2), centerScreen.Y - 100), fadeColor);
         }
 
         // Draw instructions
         var instructions = _additionComplete
             ? "Press ENTER or SPACE to return to menu"
-            : "Press SPACE when the cursor aligns with the markers!";
+            : "Press SPACE when the red square aligns with the blue square!";
 
         var instructionSize = _font.MeasureString(instructions);
         _spriteBatch.DrawString(_font, instructions,
-            new Vector2((GraphicsDevice.Viewport.Width - instructionSize.X) / 2, 400), Color.White);
+            new Vector2(centerScreen.X - (instructionSize.X / 2), centerScreen.Y + 200), Color.White);
 
         // Draw addition status
         if (_additionComplete)
@@ -342,7 +410,7 @@ public class Game1 : Game
 
             var resultSize = _titleFont.MeasureString(resultText);
             _spriteBatch.DrawString(_titleFont, resultText,
-                new Vector2((GraphicsDevice.Viewport.Width - resultSize.X) / 2, 200), resultColor);
+                new Vector2(centerScreen.X - (resultSize.X / 2), 200), resultColor);
         }
     }
 
@@ -360,6 +428,73 @@ public class Game1 : Game
             _spriteBatch.DrawString(_damageFont, damageText,
                 new Vector2(_damagePosition.X - (textSize.X / 2), _damagePosition.Y), damageColor);
         }
+    }
+
+    private void DrawSquare(Vector2 center, float size, float rotation, Color color)
+    {
+        // Calculate the position for a square centered at the given position
+        var halfSize = size / 2;
+
+        // Store the current SpriteBatch transform
+        var originalTransform = Matrix.CreateTranslation(new Vector3(-center, 0)) *
+                           Matrix.CreateRotationZ(rotation) *
+                           Matrix.CreateTranslation(new Vector3(center, 0));
+
+        // Apply transform for rotation
+        _spriteBatch.End();
+        _spriteBatch.Begin(transformMatrix: originalTransform);
+
+        // Draw the square
+        _spriteBatch.Draw(_squareTexture,
+            new Rectangle((int)(center.X - halfSize), (int)(center.Y - halfSize), (int)size, (int)size),
+            color);
+
+        // Restore original transform
+        _spriteBatch.End();
+        _spriteBatch.Begin();
+    }
+
+    private void DrawSquareFrame(Vector2 center, float size, float rotation, Color color, float thickness = 10f)
+    {
+        // Calculate the position for a square centered at the given position
+        var halfSize = size / 2;
+
+        // Store the current SpriteBatch transform for rotation
+        var originalTransform = Matrix.CreateTranslation(new Vector3(-center, 0)) *
+                        Matrix.CreateRotationZ(rotation) *
+                        Matrix.CreateTranslation(new Vector3(center, 0));
+
+        // Apply transform for rotation
+        _spriteBatch.End();
+        _spriteBatch.Begin(transformMatrix: originalTransform);
+
+        // Draw the top edge
+        _spriteBatch.Draw(_pixel,
+            new Rectangle((int)(center.X - halfSize), (int)(center.Y - halfSize),
+                         (int)size, (int)thickness),
+            color);
+
+        // Draw the bottom edge
+        _spriteBatch.Draw(_pixel,
+            new Rectangle((int)(center.X - halfSize), (int)(center.Y + halfSize - thickness),
+                         (int)size, (int)thickness),
+            color);
+
+        // Draw the left edge
+        _spriteBatch.Draw(_pixel,
+            new Rectangle((int)(center.X - halfSize), (int)(center.Y - halfSize),
+                         (int)thickness, (int)size),
+            color);
+
+        // Draw the right edge
+        _spriteBatch.Draw(_pixel,
+            new Rectangle((int)(center.X + halfSize - thickness), (int)(center.Y - halfSize),
+                         (int)thickness, (int)size),
+            color);
+
+        // Restore original transform
+        _spriteBatch.End();
+        _spriteBatch.Begin();
     }
 
     private bool IsKeyPressed(KeyboardState currentKeyboardState, Keys key) => currentKeyboardState.IsKeyDown(key) && !_prevKeyboardState.IsKeyDown(key);
