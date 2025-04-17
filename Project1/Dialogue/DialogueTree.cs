@@ -3,7 +3,7 @@
 namespace Project1.Dialogue;
 
 // A collection of related dialogue lines
-public class Tree
+public class DialogueTree
 {
     private readonly Dictionary<string, Line> _dialogues = [];
 

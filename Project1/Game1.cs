@@ -1,6 +1,9 @@
 ﻿using Project1.Combat;
 using Project1.Dialogue;
 using Project1.Dungeon;
+using Project1.Dungeon.Hazards;
+using Project1.Dungeon.Puzzles;
+using Project1.Effects;
 using Project1.Inventory;
 using Project1.Inventory.Items;
 
@@ -10,6 +13,8 @@ public class Game1 : Game
 {
     private EnemyManager _enemyManager;
     private CombatManager _combatManager;
+    private HazardManager _hazardManager;
+    private ParticleSystem _particleSystem;
     private Model _enemyModel;
 
     private GraphicsDeviceManager _graphics;
@@ -35,7 +40,7 @@ public class Game1 : Game
     private Controller _player;
     private Camera _camera;
 
-    private Manager _dialogueManager;
+    private DialogueManager _dialogueManager;
     private Database _dialogueDatabase;
 
     private Player _playerCharacter;
@@ -73,7 +78,7 @@ public class Game1 : Game
         _player = new Controller(startPos, _map);
         _camera = new Camera();
 
-        _playerCharacter = new Player();
+        _playerCharacter = new Player(_player);
         _inventory = _playerCharacter.Inventory;
 
         _itemDatabase = CreateItemDatabase();
@@ -86,7 +91,7 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _minimap = new Minimap(this, _map, _spriteBatch);
 
-        _dialogueManager = new Manager(this, _spriteBatch, Content.Load<SpriteFont>("CompassFont"));
+        _dialogueManager = new DialogueManager(this, _spriteBatch, Content.Load<SpriteFont>("CompassFont"));
         _dialogueDatabase = CreateDialogueDatabase();
 
         var vertices = CreateCubeVertices(TileSize);
@@ -103,7 +108,9 @@ public class Game1 : Game
         _floorTexture = Content.Load<Texture2D> ("FloorTexture");
         _waterTexture = Content.Load<Texture2D> ("WaterTexture");
         _lavaTexture  = Content.Load<Texture2D> ("LavaTexture");
-        _compassFont  = Content.Load<SpriteFont>("CompassFont");
+        _lockedDoorTexture = Content.Load<Texture2D>("StoneDoor");
+        _doorTexture = Content.Load<Texture2D>("OpenDoor");
+        _compassFont = Content.Load<SpriteFont>("CompassFont");
 
         _basicEffect = new BasicEffect(GraphicsDevice)
         {
@@ -132,6 +139,49 @@ public class Game1 : Game
         _enemyManager.AddEnemy(new Enemy("goblin", "Goblin", 30, 5, 2, new Point(3, 1), 20));
         _enemyManager.AddEnemy(new Enemy("skeleton", "Skeleton", 40, 7, 3, new Point(1, 3), 30));
         _enemyManager.AddEnemy(new Enemy("troll", "Troll", 80, 12, 5, new Point(3, 5), 50));
+
+        LoadHazards();
+    }
+
+    private void LoadHazards()
+    {
+        _particleSystem = new ParticleSystem(GraphicsDevice);
+        _hazardManager = new HazardManager(this, _spriteBatch, _compassFont, _playerCharacter);
+        _hazardManager.AddHazard(new SpikeTrap(new Point(2, 2), 10));
+        _hazardManager.AddHazard(new SpikeTrap(new Point(3, 1), 15, true)); // Hidden trap
+
+        var fireParticles = new ParticleSystem(GraphicsDevice);
+        _hazardManager.AddHazard(new FireJet(new Point(1, 3), 5, fireParticles));
+
+        var door = new Door(new Point(3, 5));
+        var lever = new Lever(new Point(2, 4),
+            () => door.Open(),
+            () => door.Close());
+        _hazardManager.AddHazard(lever);
+        _hazardManager.AddHazard(door);
+
+        var blockPuzzle = new PressurePlatePuzzle(() =>
+        {
+            // Unlock a door when solved
+            var secretDoor = new Door(new Point(4, 3));
+            secretDoor.Open();
+            _hazardManager.AddHazard(secretDoor);
+        });
+
+        var plate1 = new PressurePlate(new Point(2, 3), null, null);
+        var plate2 = new PressurePlate(new Point(1, 4), null, null);
+        blockPuzzle.AddPlate(plate1, new Point(2, 3));
+        blockPuzzle.AddPlate(plate2, new Point(1, 4));
+
+        var block1 = new MovableBlock(_map, new Point(3, 2));
+        var block2 = new MovableBlock(_map, new Point(1, 2));
+        blockPuzzle.AddBlock(block1);
+        blockPuzzle.AddBlock(block2);
+
+        _hazardManager.AddHazard(plate1);
+        _hazardManager.AddHazard(plate2);
+        _hazardManager.AddHazard(block1);
+        _hazardManager.AddHazard(block2);
     }
 
     protected override void Update(GameTime gameTime)
@@ -175,6 +225,8 @@ public class Game1 : Game
 
             _enemyManager.Update(gameTime);
             _combatManager.Update(gameTime, keyState);
+            _hazardManager.Update(gameTime, _player.GridPosition);
+            _particleSystem.Update(gameTime);
         }
 
         _previousKeyboardState = keyState;
@@ -194,6 +246,7 @@ public class Game1 : Game
         _spriteBatch.Begin();
         _enemyManager.DrawHealthBars();
         _combatManager.DrawDamageIndicators(_camera.View, _camera.Projection);
+        _hazardManager.DrawHazardIndicators(_player.GridPosition);
 
         DrawCompass(_spriteBatch);
         if (!_dialogueManager.IsActive)
@@ -208,6 +261,8 @@ public class Game1 : Game
         _inventoryUI.Draw();
 
         _spriteBatch.End();
+
+        _particleSystem.Draw(_spriteBatch, _camera);
         base.Draw(gameTime);
     }
 
@@ -418,7 +473,7 @@ public class Game1 : Game
         var database = new Database();
 
         // Create a simple dialogue tree
-        var welcomeTree = new Tree();
+        var welcomeTree = new DialogueTree();
         welcomeTree.AddDialogue("start", "Welcome to the dungeon, brave adventurer!", "Guardian")
             .AddOption("Who are you?", "who")
             .AddOption("What is this place?", "place")

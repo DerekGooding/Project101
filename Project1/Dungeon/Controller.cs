@@ -53,7 +53,7 @@ public class Controller(Point startPosition, Map map)
         }
     }
 
-    private Point FacingOffset() => FacingDirection switch
+    public Point FacingOffset() => FacingDirection switch
     {
         0 => new Point(0, -1), // North
         1 => new Point(-1, 0),  // East

@@ -1,7 +1,7 @@
 ﻿namespace Project1.Dialogue;
 
 // Manages the dialogue state and rendering
-public class Manager
+public class DialogueManager
 {
     private readonly SpriteBatch _spriteBatch;
     private readonly SpriteFont _font;
@@ -9,7 +9,7 @@ public class Manager
     private readonly Texture2D _dialogueBoxTexture;
     private readonly Texture2D _optionBoxTexture;
 
-    private Tree _currentTree;
+    private DialogueTree _currentTree;
     private Line _currentLine;
     private int _selectedOption = 0;
     private bool _isActive = false;
@@ -25,7 +25,7 @@ public class Manager
 
     public bool IsActive => _isActive;
 
-    public Manager(Game game, SpriteBatch spriteBatch, SpriteFont font, SpriteFont optionFont = null)
+    public DialogueManager(Game game, SpriteBatch spriteBatch, SpriteFont font, SpriteFont optionFont = null)
     {
         _spriteBatch = spriteBatch;
         _font = font;
@@ -46,7 +46,7 @@ public class Manager
         );
     }
 
-    public void StartDialogue(Tree tree, string startDialogueId)
+    public void StartDialogue(DialogueTree tree, string startDialogueId)
     {
         _currentTree = tree;
         _currentLine = tree.GetDialogue(startDialogueId);

@@ -1,9 +1,10 @@
 ﻿using Project1.Combat;
+using Project1.Dungeon;
 using System;
 
 namespace Project1.Inventory;
 
-public class Player
+public class Player(Controller controller)
 {
     public Inventory Inventory { get; } = new Inventory(20);
     public int Health { get; private set; } = 100;
@@ -15,6 +16,7 @@ public class Player
     public Point GridPosition { get; set; } = new Point(1, 1);
     public float AttackCooldown { get; } = 0.5f;
     public float CurrentCooldown { get; private set; } = 0;
+    private Controller _controller = controller;
 
     // Add event for when player levels up
     public event Action<int> LevelUp;
@@ -82,4 +84,6 @@ public class Player
     }
 
     public void EquipWeapon(Weapon weapon) => Inventory.EquipWeapon(weapon);
+
+    public Point FacingOffset => _controller.FacingOffset();
 }
