@@ -33,6 +33,9 @@ public class Map
     public Tile GetTile(Point pos) =>
         pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height ? _tiles[pos.Y, pos.X] : null;
 
+    public TileType GetTileType(Point pos) =>
+        pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height ? _tiles[pos.Y, pos.X].Type : TileType.Wall;
+
     public void SetTile(Point pos, TileType type, bool isLocked = false, string keyId = null)
     {
         if (pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height)

@@ -10,6 +10,8 @@ public class Minimap
     private readonly int _tileSize = 8;
     private readonly Color _wallColor = new(64, 64, 64);
     private readonly Color _floorColor = new(192, 192, 192);
+    private readonly Color _waterColor = new(0, 0, 255, 128);
+    private readonly Color _lavaColor = new(255, 0, 0, 128);
     private readonly Color _playerColor = Color.Red;
     private readonly Color _unexploredColor = Color.Black;
     private readonly Rectangle _minimapRect;
@@ -77,6 +79,12 @@ public class Minimap
                     );
 
                     var color = _map.IsWalkable(new Point(x, y)) ? _floorColor : _wallColor;
+                    color = _map.GetTileType(new Point(x, y)) switch
+                    {
+                        TileType.Water => _waterColor,
+                        TileType.Lava => _lavaColor,
+                        _ => color
+                    };
                     _spriteBatch.Draw(_minimapTexture, tileRect, color);
                 }
             }
