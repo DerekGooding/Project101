@@ -94,9 +94,11 @@ public class Game1 : Game
         _floorVertices = CreateFloorQuad(TileSize);
         _floorIndices = [0, 1, 2, 0, 2, 3];
 
-        _wallTexture = Content.Load<Texture2D>("StoneTexture");
-        _floorTexture = Content.Load<Texture2D>("RockyTexture");
-        _compassFont = Content.Load<SpriteFont>("CompassFont");
+        _wallTexture  = Content.Load<Texture2D> ("WallTexture");
+        _floorTexture = Content.Load<Texture2D> ("FloorTexture");
+        _waterTexture = Content.Load<Texture2D> ("WaterTexture");
+        _lavaTexture  = Content.Load<Texture2D> ("LavaTexture");
+        _compassFont  = Content.Load<SpriteFont>("CompassFont");
 
         _basicEffect = new BasicEffect(GraphicsDevice)
         {
