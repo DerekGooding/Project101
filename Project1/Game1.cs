@@ -1,4 +1,5 @@
-﻿using Project1.Combat;
+﻿using Project1.Audio;
+using Project1.Combat;
 using Project1.Dialogue;
 using Project1.Dungeon;
 using Project1.Dungeon.Hazards;
@@ -16,6 +17,13 @@ public class Game1 : Game
     private HazardManager _hazardManager;
     private ParticleSystem _particleSystem;
     private Model _enemyModel;
+
+    private AudioManager _audioManager;
+    private DynamicMusicSystem _musicSystem;
+    private AmbientSoundManager _ambientManager;
+    private FootstepSystem _footstepSystem;
+    private PositionalAudio _positionalAudio;
+    private Point _lastPlayerPosition;
 
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
@@ -83,6 +91,14 @@ public class Game1 : Game
 
         _itemDatabase = CreateItemDatabase();
 
+        _audioManager = new AudioManager(this);
+        _musicSystem = new DynamicMusicSystem(_audioManager);
+        _ambientManager = new AmbientSoundManager(_audioManager);
+        _footstepSystem = new FootstepSystem(_audioManager, _map);
+        _positionalAudio = new PositionalAudio(_audioManager);
+
+        _lastPlayerPosition = _player.GridPosition;
+
         base.Initialize();
     }
 
@@ -141,6 +157,12 @@ public class Game1 : Game
         _enemyManager.AddEnemy(new Enemy("troll", "Troll", 80, 12, 5, new Point(3, 5), 50));
 
         LoadHazards();
+
+        _audioManager.LoadContent();
+        _musicSystem.SetGameState(GameState.Exploration);
+
+        _positionalAudio.AddSoundEmitter(new Point(2, 1), "ambient_wind");
+        _positionalAudio.AddSoundEmitter(new Point(3, 3), "ambient_drip");
     }
 
     private void LoadHazards()
@@ -187,6 +209,10 @@ public class Game1 : Game
     protected override void Update(GameTime gameTime)
     {
         var keyState = Keyboard.GetState();
+
+        _audioManager.Update();
+        _musicSystem.Update(gameTime);
+        _ambientManager.Update(gameTime);
 
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || IsKeyPressed(Keys.Escape, keyState)) Exit();
 

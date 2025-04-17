@@ -77,7 +77,7 @@ public class Player(Controller controller)
     {
         if (CanAttack())
         {
-            int damage = CalculateAttackDamage();
+            var damage = CalculateAttackDamage();
             enemy.TakeDamage(damage);
             ResetAttackCooldown();
         }

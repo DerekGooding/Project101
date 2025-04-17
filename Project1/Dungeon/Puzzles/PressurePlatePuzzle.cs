@@ -33,7 +33,7 @@ public class PressurePlatePuzzle(Action onPuzzleSolved)
     private void OnBlockMoved(MovableBlock block, Point oldPosition, Point newPosition)
     {
         // Check if any plates need to be updated
-        for (int i = 0; i < _plates.Count; i++)
+        for (var i = 0; i < _plates.Count; i++)
         {
             var plate = _plates[i];
 
