@@ -39,9 +39,9 @@ public class AudioManager
         SoundEffects["attack"] = _game.Content.Load<SoundEffect>("Audio/Effects/attack");
 
         // Load music tracks
-        _songs["dungeon_ambient"] = _game.Content.Load<Song>("Audio/Music/dungeon_ambient");
+        //_songs["dungeon_ambient"] = _game.Content.Load<Song>("Audio/Music/dungeon_ambient");
         _songs["dungeon_battle"] = _game.Content.Load<Song>("Audio/Music/dungeon_battle");
-        _songs["dungeon_puzzle"] = _game.Content.Load<Song>("Audio/Music/dungeon_puzzle");
+        //_songs["dungeon_puzzle"] = _game.Content.Load<Song>("Audio/Music/dungeon_puzzle");
         _songs["main_menu"] = _game.Content.Load<Song>("Audio/Music/main_menu");
 
         // Load and group ambient sounds

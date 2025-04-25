@@ -91,6 +91,18 @@
 /processorParam:Quality=Best
 /build:Audio/Effects/player_damaged.wav
 
+#begin Audio/Music/dungeon_battle.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Music/dungeon_battle.wav
+
+#begin Audio/Music/main_menu.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Music/main_menu.wav
+
 #begin CompassFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
