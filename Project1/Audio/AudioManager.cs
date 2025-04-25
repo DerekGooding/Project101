@@ -9,7 +9,7 @@ public class AudioManager
     private readonly Dictionary<string, List<SoundEffect>> _ambientSounds = [];
     public Dictionary<string, SoundEffect> SoundEffects { get; } = [];
 
-    private Song _currentSong;
+    private Song? _currentSong;
     private readonly List<SoundEffectInstance> _activeSoundInstances = [];
     private readonly Random _random = new();
 
@@ -56,10 +56,10 @@ public class AudioManager
 
     public void PlaySound(string soundName)
     {
-        if (!IsSoundEnabled || !SoundEffects.ContainsKey(soundName))
+        if (!IsSoundEnabled || !SoundEffects.TryGetValue(soundName, out var value))
             return;
 
-        var instance = SoundEffects[soundName].CreateInstance();
+        var instance = value.CreateInstance();
         instance.Volume = SoundEffectVolume;
         instance.Play();
 
@@ -80,6 +80,7 @@ public class AudioManager
         MediaPlayer.Play(_currentSong);
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
     public void StopMusic() => MediaPlayer.Stop();
 
     public void SetMusicVolume(float volume)
@@ -90,10 +91,8 @@ public class AudioManager
 
     public void PlayRandomAmbientSound(string ambientGroup)
     {
-        if (!IsSoundEnabled || !_ambientSounds.ContainsKey(ambientGroup))
+        if (!IsSoundEnabled || !_ambientSounds.TryGetValue(ambientGroup, out var sounds))
             return;
-
-        var sounds = _ambientSounds[ambientGroup];
         if (sounds.Count > 0)
         {
             var index = _random.Next(sounds.Count);
@@ -116,6 +115,7 @@ public class AudioManager
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>")]
     public void SetMasterVolume(float volume) => SoundEffect.MasterVolume = MathHelper.Clamp(volume, 0f, 1f);
 
     public void Dispose()

@@ -13,6 +13,84 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Audio/Ambience/creak_1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Ambience/creak_1.wav
+
+#begin Audio/Ambience/drip_1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Ambience/drip_1.wav
+
+#begin Audio/Ambience/drip_2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Ambience/drip_2.wav
+
+#begin Audio/Ambience/wind_1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Ambience/wind_1.wav
+
+#begin Audio/Ambience/wind_2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Ambience/wind_2.wav
+
+#begin Audio/Effects/attack.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Effects/attack.wav
+
+#begin Audio/Effects/dialog_next.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Effects/dialog_next.wav
+
+#begin Audio/Effects/door_open.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Effects/door_open.wav
+
+#begin Audio/Effects/footstep_stone.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Effects/footstep_stone.wav
+
+#begin Audio/Effects/inventory_close.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Effects/inventory_close.wav
+
+#begin Audio/Effects/inventory_open.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Effects/inventory_open.wav
+
+#begin Audio/Effects/item_pickup.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Effects/item_pickup.wav
+
+#begin Audio/Effects/player_damaged.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/Effects/player_damaged.wav
+
 #begin CompassFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
