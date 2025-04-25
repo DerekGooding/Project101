@@ -93,13 +93,13 @@
 
 #begin Audio/Music/dungeon_battle.wav
 /importer:WavImporter
-/processor:SoundEffectProcessor
+/processor:SongProcessor
 /processorParam:Quality=Best
 /build:Audio/Music/dungeon_battle.wav
 
 #begin Audio/Music/main_menu.wav
 /importer:WavImporter
-/processor:SoundEffectProcessor
+/processor:SongProcessor
 /processorParam:Quality=Best
 /build:Audio/Music/main_menu.wav
 
