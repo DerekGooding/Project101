@@ -8,7 +8,7 @@ public class Agent(Vector2 position, Texture2D texture)
     public int CarryingAmount { get; set; } = 0;
     public string CurrentState { get; set; } = "Idle";
 
-    private GOAPPlanner _planner = new GOAPPlanner();
+    private readonly GOAPPlanner _planner = new();
     private readonly List<GOAPAction> _availableActions =
         [
             new GatherResourceAction(),

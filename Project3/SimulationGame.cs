@@ -13,14 +13,13 @@ public class SimulationGame : Game
     private SpriteFont _font;
     private List<Resource> _resources;
     private List<Home> _homes;
-    private Random _random;
+    private readonly Random _random = Random.Shared;
 
     public SimulationGame()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        _random = new Random();
 
         _graphics.PreferredBackBufferWidth = 1280;
         _graphics.PreferredBackBufferHeight = 720;

@@ -17,7 +17,7 @@ public class Game1 : Game
 
     // Menu variables
     private int _selectedAdditionIndex = 0;
-    private List<Addition> _additions = new();
+    private readonly List<Addition> _additions = [];
 
     // Combat variables
     private Addition _currentAddition;
