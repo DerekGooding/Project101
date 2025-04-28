@@ -29,7 +29,7 @@ public class MovableBlock(Map map, Point position) : Hazard(position, HazardType
 
     private bool CanMoveTo(Point position) => _map.IsWalkable(position) && !HasAnotherBlock(position);
 
-    private bool HasAnotherBlock(Point position) => Parent.GetBlockAtPosition(position) != null;
+    private bool HasAnotherBlock(Point position) => Parent?.GetBlockAtPosition(position) != null;
 
     public override void Reset()
     {
@@ -40,5 +40,5 @@ public class MovableBlock(Map map, Point position) : Hazard(position, HazardType
     public void LockInPlace() => _canBeMoved = false;
 
     // Event for puzzle logic
-    public event Action<MovableBlock, Point, Point> BlockMoved;
+    public event Action<MovableBlock, Point, Point>? BlockMoved;
 }

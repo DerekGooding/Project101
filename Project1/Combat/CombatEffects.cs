@@ -11,9 +11,9 @@ public class CombatEffects
 
     private Texture2D _hitFlashTexture;
     private float _hitFlashTimer;
-    private SoundEffect _attackSound;
-    private SoundEffect _hitSound;
-    private SoundEffect _enemyDeathSound;
+    private SoundEffect? _attackSound;
+    private SoundEffect? _hitSound;
+    private SoundEffect? _enemyDeathSound;
 
     public CombatEffects(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
     {
@@ -23,7 +23,7 @@ public class CombatEffects
 
         // Create hit flash texture
         _hitFlashTexture = new Texture2D(graphicsDevice, 1, 1);
-        _hitFlashTexture.SetData(new[] { Color.White });
+        _hitFlashTexture.SetData([Color.White]);
     }
 
     public void LoadContent(ContentManager content)

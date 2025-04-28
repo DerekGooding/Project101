@@ -128,7 +128,7 @@ public class CombatManager
                 var textSize = _font.MeasureString(damageText);
 
                 // Calculate final position with offset
-                var finalPos = new Vector2(screenPos.X, screenPos.Y) + indicator.Offset - textSize / 2;
+                var finalPos = new Vector2(screenPos.X, screenPos.Y) + indicator.Offset - (textSize / 2);
 
                 // Draw with changing color and fading
                 var alpha = Math.Min(1, indicator.TimeLeft * 2);

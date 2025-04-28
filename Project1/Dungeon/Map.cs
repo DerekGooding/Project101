@@ -61,7 +61,7 @@ public class Map
         public bool Intersects(Room other) => X < other.X + other.Width && X + Width > other.X &&
                    Y < other.Y + other.Height && Y + Height > other.Y;
 
-        public Point Center => new(X + Width / 2, Y + Height / 2);
+        public Point Center => new(X + (Width / 2), Y + (Height / 2));
     }
 
     private void CreateRooms()
@@ -123,7 +123,7 @@ public class Map
         // Ensure we have a stairs room
         if (_rooms.Count > 1)
         {
-            _rooms[_rooms.Count - 1].RoomType = "stairs";
+            _rooms[^1].RoomType = "stairs";
         }
     }
 
@@ -279,7 +279,7 @@ public class Map
             {
                 for (var dx = -size; dx <= size; dx++)
                 {
-                    if (dx * dx + dy * dy <= size * size)
+                    if ((dx * dx) + (dy * dy) <= size * size)
                     {
                         var pos = new Point(x + dx, y + dy);
                         if (pos.X > room.X && pos.X < room.X + room.Width - 1 &&
@@ -316,7 +316,7 @@ public class Map
             {
                 var dx = x - center.X;
                 var dy = y - center.Y;
-                var distSq = dx * dx + dy * dy;
+                var distSq = (dx * dx) + (dy * dy);
 
                 if (distSq <= moatRadius * moatRadius && distSq > platformRadius * platformRadius)
                 {

@@ -17,12 +17,13 @@ public class PositionalAudio(AudioManager audioManager)
             Up = Vector3.Up
         };
 
-        if (!_emitters.ContainsKey(position))
+        if (!_emitters.TryGetValue(position, out var value))
         {
-            _emitters[position] = [];
+            value = [];
+            _emitters[position] = value;
         }
 
-        _emitters[position].Add(emitter);
+        value.Add(emitter);
     }
 
     public void UpdateListener(Vector3 position, Vector3 forward, Vector3 up)
@@ -34,10 +35,10 @@ public class PositionalAudio(AudioManager audioManager)
 
     public void PlaySoundAt(Point position, string soundId)
     {
-        if (!_emitters.ContainsKey(position))
+        if (!_emitters.TryGetValue(position, out var value))
             return;
 
-        foreach (var emitter in _emitters[position])
+        foreach (var emitter in value)
         {
             if (_audioManager.SoundEffects.TryGetValue(soundId, out var sound))
             {

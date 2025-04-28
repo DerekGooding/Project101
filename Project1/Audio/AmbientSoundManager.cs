@@ -6,8 +6,8 @@ public class AmbientSoundManager
     private readonly Dictionary<string, string> _areaAmbientGroups = [];
     private readonly Random _random = Random.Shared;
     private string _currentArea = "dungeon";
-    private double _timeSinceLastAmbient = 0;
-    private double _nextAmbientTime = 0;
+    private double _timeSinceLastAmbient;
+    private double _nextAmbientTime;
 
     public AmbientSoundManager(AudioManager audioManager)
     {
@@ -42,5 +42,5 @@ public class AmbientSoundManager
         }
     }
 
-    private void ResetAmbientTimer() => _nextAmbientTime = _random.NextDouble() * 12 + 8;
+    private void ResetAmbientTimer() => _nextAmbientTime = (_random.NextDouble() * 12) + 8;
 }

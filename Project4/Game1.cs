@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Project3;
+namespace Project4;
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
@@ -11,7 +11,7 @@ public class Game1 : Game
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
-        //Content.RootDirectory = "Content";
+        Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
 

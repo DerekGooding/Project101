@@ -28,17 +28,17 @@ public class AudioSettingsUI
 
         // Create textures for UI elements
         _sliderTexture = new Texture2D(game.GraphicsDevice, 1, 1);
-        _sliderTexture.SetData(new[] { Color.Gray });
+        _sliderTexture.SetData([Color.Gray]);
 
         _sliderKnobTexture = new Texture2D(game.GraphicsDevice, 1, 1);
-        _sliderKnobTexture.SetData(new[] { Color.White });
+        _sliderKnobTexture.SetData([Color.White]);
 
         // Create UI rectangles
         var viewport = game.GraphicsDevice.Viewport;
-        var sliderWidth = 200;
-        var sliderHeight = 10;
-        var startY = 200;
-        var padding = 40;
+        const int sliderWidth = 200;
+        const int sliderHeight = 10;
+        const int startY = 200;
+        const int padding = 40;
 
         _musicVolumeSlider = new Rectangle(
             (viewport.Width - sliderWidth) / 2,
@@ -56,7 +56,7 @@ public class AudioSettingsUI
 
         _masterVolumeSlider = new Rectangle(
             (viewport.Width - sliderWidth) / 2,
-            startY + padding * 2,
+            startY + (padding * 2),
             sliderWidth,
             sliderHeight
         );

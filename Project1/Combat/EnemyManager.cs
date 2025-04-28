@@ -92,9 +92,9 @@ public class EnemyManager(SpriteBatch spriteBatch, Texture2D enemyTexture, Playe
             {
                 // Draw enemy health bar
                 var healthPercentage = (float)enemy.Health / enemy.MaxHealth;
-                var barWidth = 50;
-                var barHeight = 5;
-                var barX = (int)projected.X - barWidth / 2;
+                const int barWidth = 50;
+                const int barHeight = 5;
+                var barX = (int)projected.X - (barWidth / 2);
                 var barY = (int)projected.Y - 30;
 
                 // Background

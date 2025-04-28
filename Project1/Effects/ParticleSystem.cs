@@ -55,10 +55,10 @@ public class ParticleSystem
                 Velocity = velocity,
                 Color = color,
                 Alpha = 1.0f,
-                Scale = 0.1f + (float)_random.NextDouble() * 0.2f,
+                Scale = 0.1f + ((float)_random.NextDouble() * 0.2f),
                 Rotation = (float)_random.NextDouble() * MathHelper.TwoPi,
                 RotationVelocity = (float)(_random.NextDouble() - 0.5f) * 2.0f,
-                Lifetime = 0.5f + (float)_random.NextDouble() * 1.5f,
+                Lifetime = 0.5f + ((float)_random.NextDouble() * 1.5f),
                 Age = 0
             };
 
@@ -94,7 +94,7 @@ public class ParticleSystem
 
             var color = particle.Color * particle.Alpha;
 
-            var scale = particle.Scale * (1.0f - particle.Age / particle.Lifetime);
+            var scale = particle.Scale * (1.0f - (particle.Age / particle.Lifetime));
 
             spriteBatch.Draw(
                 _particleTexture,

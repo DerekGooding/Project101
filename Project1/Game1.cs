@@ -577,7 +577,7 @@ public class Game1 : Game
         _spriteBatch.DrawString(_compassFont, healthText, textPosition, Color.White);
 
         // Draw inventory hint
-        var inventoryHint = "Press I for Inventory";
+        const string inventoryHint = "Press I for Inventory";
         var hintPosition = new Vector2(
             GraphicsDevice.Viewport.Width - _compassFont.MeasureString(inventoryHint).X - 220,
             20

@@ -72,10 +72,10 @@ public class AudioManager
 
     public void PlayMusic(string songName)
     {
-        if (!IsMusicEnabled || !_songs.ContainsKey(songName))
+        if (!IsMusicEnabled || !_songs.TryGetValue(songName, out var value))
             return;
 
-        _currentSong = _songs[songName];
+        _currentSong = value;
         MediaPlayer.Volume = MusicVolume;
         MediaPlayer.Play(_currentSong);
     }

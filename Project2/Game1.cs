@@ -17,7 +17,7 @@ public class Game1 : Game
 
     // Menu variables
     private int _selectedAdditionIndex = 0;
-    private List<Addition> _additions = new List<Addition>();
+    private List<Addition> _additions = new();
 
     // Combat variables
     private Addition _currentAddition;
@@ -31,7 +31,7 @@ public class Game1 : Game
     private float _damageDisplayDuration = 1.5f;
     private Vector2 _damagePosition;
     private bool _displayingDamage = false;
-    private Random _random = new Random();
+    private Random _random = Random.Shared;
     private int _baseDamage = 100;
 
     // Timing square variables
@@ -40,9 +40,9 @@ public class Game1 : Game
     private float _squareSize = 200f; // Size of the static square
     private float _movingSquareSize = 500f; // Initial size of the moving square
     private float _shrinkRate = 400f; // How fast the square shrinks (pixels per second)
-    private Color _staticSquareColor = new Color(50, 50, 200, 150);
-    private Color _movingSquareColor = new Color(200, 50, 50, 150);
-    private Color _hitZoneColor = new Color(50, 200, 50, 100);
+    private Color _staticSquareColor = new(50, 50, 200, 150);
+    private Color _movingSquareColor = new(200, 50, 50, 150);
+    private Color _hitZoneColor = new(50, 200, 50, 100);
 
     // Feedback message
     private string _feedbackMessage = "";
@@ -229,7 +229,6 @@ public class Game1 : Game
                     else
                     {
                         ShowFeedbackMessage("TOO LATE", Color.Red);
-
                     }
                     // Failed hit timing
                     FinishAddition(false);
@@ -272,7 +271,7 @@ public class Game1 : Game
         if (success)
         {
             // Full completion bonus
-            _finalDamage = (int)(_baseDamage * _currentAddition.DamageMultipliers[_currentAddition.DamageMultipliers.Length - 1]);
+            _finalDamage = (int)(_baseDamage * _currentAddition.DamageMultipliers[^1]);
         }
         else if (_currentHitIndex > 0)
         {

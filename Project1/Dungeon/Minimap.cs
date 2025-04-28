@@ -31,7 +31,7 @@ public class Minimap
         _playerMarker.SetData([Color.Red]);
 
         // Position the minimap in the top-right corner
-        var padding = 10;
+        const int padding = 10;
         var mapWidth = map.Width * _tileSize;
         var mapHeight = map.Height * _tileSize;
         _minimapRect = new Rectangle(
