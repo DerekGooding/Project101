@@ -186,7 +186,7 @@ public class Game1 : Game
         var fireParticles = new ParticleSystem(GraphicsDevice);
         _hazardManager.AddHazard(new FireJet(new Point(1, 3), 5, fireParticles));
 
-        var door = new Door(new Point(3, 5));
+        var door = new Door(new Door3D(new Point(3, 5), new Point(4, 5), 1));
         var lever = new Lever(new Point(2, 4),
             () => door.Open(),
             () => door.Close());
@@ -196,7 +196,7 @@ public class Game1 : Game
         var blockPuzzle = new PressurePlatePuzzle(() =>
         {
             // Unlock a door when solved
-            var secretDoor = new Door(new Point(4, 3));
+            var secretDoor = new Door(new Door3D(new Point(4, 3), new Point(4, 4), 1));
             secretDoor.Open();
             _hazardManager.AddHazard(secretDoor);
         });

@@ -46,7 +46,8 @@ public class Controller(Point startPosition, Map map)
         var offset = FacingOffset();
         var target = GridPosition + offset.Multiply(direction);
 
-        if (_map.IsWalkable(target))
+        // Check if we can move between the tiles (considering doors)
+        if (_map.CanMoveBetween(GridPosition, target))
         {
             GridPosition = target;
             _moveTimer = 0;

@@ -35,13 +35,11 @@ public class Map
     public TileType GetTileType(Point pos) =>
         pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height ? _tiles[pos.Y, pos.X].Type : TileType.Wall;
 
-    public void SetTile(Point pos, TileType type, bool isLocked = false, string? keyId = null)
+    public void SetTile(Point pos, TileType type)
     {
         if (pos.X >= 0 && pos.Y >= 0 && pos.X < Width && pos.Y < Height)
         {
             _tiles[pos.Y, pos.X].Type = type;
-            _tiles[pos.Y, pos.X].IsLocked = isLocked;
-            _tiles[pos.Y, pos.X].KeyId = keyId;
         }
     }
 
@@ -221,22 +219,13 @@ public class Map
             // Determine if this is a hallway by checking adjacent tiles
             if (IsHallway(outsidePos, insidePos))
             {
-                // Pick a position for the door (either outsidePos or insidePos)
-                var doorPos = _random.Next(0, 2) == 0 ? outsidePos : insidePos;
-
                 // Special rooms have locked doors
                 var isLocked = room.RoomType is "treasure" or "boss";
                 var keyId = isLocked ? $"key_{room.RoomType}_{_rooms.IndexOf(room)}" : null;
 
-                // Determine door orientation (NORTH_SOUTH or EAST_WEST)
-                int orientation = DetermineDoorOrientation(doorPos);
-
-                // Add to door collection for rendering
-                _doors.Add(new Door3D(doorPos, orientation, isLocked, keyId));
-
-                // Set tile in map grid
-                SetTile(doorPos, TileType.Door, isLocked, keyId);
-                room.Doors.Add(doorPos);
+                // Add door between the tiles
+                AddDoor(outsidePos, insidePos, isLocked, keyId);
+                room.Doors.Add(new Point((outsidePos.X + insidePos.X) / 2, (outsidePos.Y + insidePos.Y) / 2));
             }
         }
     }
@@ -281,25 +270,6 @@ public class Map
         }
 
         return false;
-    }
-
-    private int DetermineDoorOrientation(Point pos)
-    {
-        // Check adjacent tiles to determine orientation
-        var northTile = GetTileType(new Point(pos.X, pos.Y - 1));
-        var southTile = GetTileType(new Point(pos.X, pos.Y + 1));
-        var eastTile = GetTileType(new Point(pos.X + 1, pos.Y));
-        var westTile = GetTileType(new Point(pos.X - 1, pos.Y));
-
-        // If north/south are floor, then the door should be oriented east-west
-        if ((northTile == TileType.Floor || southTile == TileType.Floor) &&
-            (eastTile == TileType.Wall || westTile == TileType.Wall))
-        {
-            return Door3D.EAST_WEST;
-        }
-
-        // Otherwise, the door is oriented north-south
-        return Door3D.NORTH_SOUTH;
     }
 
     private void AddFeatures()
@@ -407,4 +377,31 @@ public class Map
     public Point GetStartPosition() =>
         // Return the center of the first room as the player start position
         _rooms.Count > 0 ? _rooms[0].Center : new Point(1, 1);
+
+    public Door3D? GetDoorBetween(Point posA, Point posB) =>
+        _doors.FirstOrDefault(d =>
+            (d.TileA == posA && d.TileB == posB) ||
+            (d.TileA == posB && d.TileB == posA));
+
+    public bool CanMoveBetween(Point from, Point to)
+    {
+        // If not adjacent, movement is invalid
+        if (Math.Abs(from.X - to.X) + Math.Abs(from.Y - to.Y) != 1)
+            return false;
+
+        // Check if there's a door between the positions
+        var door = GetDoorBetween(from, to);
+        if (door?.IsLocked == true)
+            return false;
+
+        // Check if destination is walkable
+        return IsWalkable(to);
+    }
+
+    public void AddDoor(Point posA, Point posB, bool isLocked = false, string? keyId = null)
+    {
+        // Determine orientation based on positions
+        var orientation = posA.X == posB.X ? Door3D.NORTH_SOUTH : Door3D.EAST_WEST;
+        _doors.Add(new Door3D(posA, posB, orientation, isLocked, keyId));
+    }
 }

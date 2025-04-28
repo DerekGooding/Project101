@@ -1,23 +1,43 @@
-﻿namespace Project1.Dungeon;
+﻿
+namespace Project1.Dungeon;
 
-public class Door3D
+public class Door3D(Point tileA, Point tileB, int orientation, bool isLocked = false, string? keyId = null)
 {
     // Orientation values
     public const int NORTH_SOUTH = 0; // Door aligned along north-south axis
     public const int EAST_WEST = 1;   // Door aligned along east-west axis
 
-    public Point Position { get; }
-    public int Orientation { get; }
-    public bool IsLocked { get; }
-    public string? KeyId { get; }
+    // Store the two adjacent tile positions
+    public Point TileA { get; } = tileA;
+    public Point TileB { get; } = tileB;
+    public int Orientation { get; } = orientation;
+    public bool IsLocked { get; private set; } = isLocked;
+    public string? KeyId { get; } = keyId;
 
-    public Door3D(Point position, int orientation, bool isLocked = false, string? keyId = null)
+    // Get the world position for rendering - center between the two tiles
+    public Vector3 GetWorldPosition(float tileSize) => new(
+            (TileA.X + TileB.X) * tileSize / 2,
+            0,
+            (TileA.Y + TileB.Y) * tileSize / 2);
+
+    public Matrix GetWorldMatrix(float tileSize)
     {
-        Position = position;
-        Orientation = orientation;
-        IsLocked = isLocked;
-        KeyId = keyId;
+        var position = GetWorldPosition(tileSize);
+
+        // Rotate the door based on orientation
+        if (Orientation == EAST_WEST)
+        {
+            // Door aligned along east-west axis (rotate 90 degrees)
+            return Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(position);
+        }
+        else
+        {
+            // Door aligned along north-south axis (default orientation)
+            return Matrix.CreateTranslation(position);
+        }
     }
+
+    internal void SetLocked(bool lockStatus) => IsLocked = lockStatus;
 
     public static VertexPositionTexture[] CreateDoorVertices(float size)
     {
@@ -74,21 +94,4 @@ public class Door3D
         16, 17, 18, 16, 18, 19, // Left edge
         20, 21, 22, 20, 22, 23  // Right edge
     ];
-
-    public Matrix GetWorldMatrix(float tileSize)
-    {
-        var position = new Vector3(Position.X * tileSize, 0, Position.Y * tileSize);
-
-        // Rotate the door based on orientation
-        if (Orientation == EAST_WEST)
-        {
-            // Door aligned along east-west axis (rotate 90 degrees)
-            return Matrix.CreateRotationY(MathHelper.PiOver2) * Matrix.CreateTranslation(position);
-        }
-        else
-        {
-            // Door aligned along north-south axis (default orientation)
-            return Matrix.CreateTranslation(position);
-        }
-    }
 }
