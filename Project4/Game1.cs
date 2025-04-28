@@ -1,8 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-
-namespace Project4;
+﻿namespace Project4;
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
