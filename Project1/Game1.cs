@@ -59,6 +59,9 @@ public class Game1 : Game
     private Texture2D _itemsTexture;
     private KeyboardState _previousKeyboardState;
 
+    private VertexBuffer _doorVertexBuffer;
+    private IndexBuffer _doorIndexBuffer;
+
     private Minimap _minimap;
 
     private const float TileSize = 2f;
@@ -106,6 +109,14 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _minimap = new Minimap(this, _map, _spriteBatch);
+
+        _doorVertexBuffer = new VertexBuffer(GraphicsDevice, typeof(VertexPositionTexture),
+            Door3D.CreateDoorVertices(TileSize).Length, BufferUsage.WriteOnly);
+        _doorVertexBuffer.SetData(Door3D.CreateDoorVertices(TileSize));
+
+        _doorIndexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits,
+            Door3D.GetDoorIndices().Length, BufferUsage.WriteOnly);
+        _doorIndexBuffer.SetData(Door3D.GetDoorIndices());
 
         _dialogueManager = new DialogueManager(this, _spriteBatch, Content.Load<SpriteFont>("CompassFont"));
         _dialogueDatabase = CreateDialogueDatabase();
@@ -324,16 +335,16 @@ public class Game1 : Game
                         }
                         break;
 
-                    case TileType.Door:
-                        // Draw door (maybe different texture based on locked status)
-                        _basicEffect.Texture = tile.IsLocked ? _lockedDoorTexture : _doorTexture;
-                        _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * tileSize, 0, y * tileSize));
-                        foreach (var pass in _basicEffect.CurrentTechnique.Passes)
-                        {
-                            pass.Apply();
-                            GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CubeIndices.Length / 3);
-                        }
-                        break;
+                    //case TileType.Door:
+                    //    // Draw door (maybe different texture based on locked status)
+                    //    _basicEffect.Texture = tile.IsLocked ? _lockedDoorTexture : _doorTexture;
+                    //    _basicEffect.World = Matrix.CreateTranslation(new Vector3(x * tileSize, 0, y * tileSize));
+                    //    foreach (var pass in _basicEffect.CurrentTechnique.Passes)
+                    //    {
+                    //        pass.Apply();
+                    //        GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, CubeIndices.Length / 3);
+                    //    }
+                    //    break;
 
                     case TileType.Water:
                     case TileType.Lava:
@@ -341,6 +352,21 @@ public class Game1 : Game
                         // These are floor types, drawn separately
                         break;
                 }
+            }
+        }
+
+        GraphicsDevice.SetVertexBuffer(_doorVertexBuffer);
+        GraphicsDevice.Indices = _doorIndexBuffer;
+
+        foreach (var door in _map.Doors)
+        {
+            _basicEffect.Texture = door.IsLocked ? _lockedDoorTexture : _doorTexture;
+            _basicEffect.World = door.GetWorldMatrix(tileSize);
+
+            foreach (var pass in _basicEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, Door3D.GetDoorIndices().Length / 3);
             }
         }
     }

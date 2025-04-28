@@ -7,6 +7,8 @@ public class Map
     public int Width { get; }
     public int Height { get; }
     private readonly List<Room> _rooms = [];
+    private readonly List<Door3D> _doors = [];
+    public IReadOnlyList<Door3D> Doors => _doors;
 
     public Map(int width = 50, int height = 50)
     {
@@ -212,20 +214,92 @@ public class Map
         var outsideTile = GetTile(outsidePos);
         var insideTile = GetTile(insidePos);
 
-        // If there's floor on both sides of a wall, place a door
+        // If there's floor on both sides of a wall, check if it's a hallway
         if (outsideTile != null && insideTile != null &&
             outsideTile.Type == TileType.Floor && insideTile.Type == TileType.Floor)
         {
-            // Pick a position for the door (either outsidePos or insidePos)
-            var doorPos = _random.Next(0, 2) == 0 ? outsidePos : insidePos;
+            // Determine if this is a hallway by checking adjacent tiles
+            if (IsHallway(outsidePos, insidePos))
+            {
+                // Pick a position for the door (either outsidePos or insidePos)
+                var doorPos = _random.Next(0, 2) == 0 ? outsidePos : insidePos;
 
-            // Special rooms have locked doors
-            var isLocked = room.RoomType is "treasure" or "boss";
-            var keyId = isLocked ? $"key_{room.RoomType}_{_rooms.IndexOf(room)}" : null;
+                // Special rooms have locked doors
+                var isLocked = room.RoomType is "treasure" or "boss";
+                var keyId = isLocked ? $"key_{room.RoomType}_{_rooms.IndexOf(room)}" : null;
 
-            SetTile(doorPos, TileType.Door, isLocked, keyId);
-            room.Doors.Add(doorPos);
+                // Determine door orientation (NORTH_SOUTH or EAST_WEST)
+                int orientation = DetermineDoorOrientation(doorPos);
+
+                // Add to door collection for rendering
+                _doors.Add(new Door3D(doorPos, orientation, isLocked, keyId));
+
+                // Set tile in map grid
+                SetTile(doorPos, TileType.Door, isLocked, keyId);
+                room.Doors.Add(doorPos);
+            }
         }
+    }
+
+    private bool IsHallway(Point outsidePos, Point insidePos)
+    {
+        // Check if this connection is in a hallway (narrow passage)
+        // We'll determine this by checking if there are walls on opposite sides
+
+        // Calculate direction vector from outside to inside
+        var dx = insidePos.X - outsidePos.X;
+        var dy = insidePos.Y - outsidePos.Y;
+
+        // Check perpendicular directions for walls
+        if (dx != 0) // Horizontal connection (east-west)
+        {
+            // Check north and south for walls
+            var northOutside = GetTileType(new Point(outsidePos.X, outsidePos.Y - 1));
+            var southOutside = GetTileType(new Point(outsidePos.X, outsidePos.Y + 1));
+            var northInside = GetTileType(new Point(insidePos.X, insidePos.Y - 1));
+            var southInside = GetTileType(new Point(insidePos.X, insidePos.Y + 1));
+
+            // If there's at least one wall to the north and south, it's a hallway
+            var hasNorthWall = northOutside == TileType.Wall || northInside == TileType.Wall;
+            var hasSouthWall = southOutside == TileType.Wall || southInside == TileType.Wall;
+
+            return hasNorthWall || hasSouthWall;
+        }
+        else if (dy != 0) // Vertical connection (north-south)
+        {
+            // Check east and west for walls
+            var eastOutside = GetTileType(new Point(outsidePos.X + 1, outsidePos.Y));
+            var westOutside = GetTileType(new Point(outsidePos.X - 1, outsidePos.Y));
+            var eastInside = GetTileType(new Point(insidePos.X + 1, insidePos.Y));
+            var westInside = GetTileType(new Point(insidePos.X - 1, insidePos.Y));
+
+            // If there's at least one wall to the east and west, it's a hallway
+            var hasEastWall = eastOutside == TileType.Wall || eastInside == TileType.Wall;
+            var hasWestWall = westOutside == TileType.Wall || westInside == TileType.Wall;
+
+            return hasEastWall || hasWestWall;
+        }
+
+        return false;
+    }
+
+    private int DetermineDoorOrientation(Point pos)
+    {
+        // Check adjacent tiles to determine orientation
+        var northTile = GetTileType(new Point(pos.X, pos.Y - 1));
+        var southTile = GetTileType(new Point(pos.X, pos.Y + 1));
+        var eastTile = GetTileType(new Point(pos.X + 1, pos.Y));
+        var westTile = GetTileType(new Point(pos.X - 1, pos.Y));
+
+        // If north/south are floor, then the door should be oriented east-west
+        if ((northTile == TileType.Floor || southTile == TileType.Floor) &&
+            (eastTile == TileType.Wall || westTile == TileType.Wall))
+        {
+            return Door3D.EAST_WEST;
+        }
+
+        // Otherwise, the door is oriented north-south
+        return Door3D.NORTH_SOUTH;
     }
 
     private void AddFeatures()
