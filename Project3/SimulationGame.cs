@@ -106,19 +106,37 @@ public class SimulationGame : Game
 
         foreach (var home in _homes)
         {
-            _spriteBatch.Draw(_homeTexture, home.Position - new Vector2(_homeTexture.Width / 2, _homeTexture.Height / 2), Color.White);
+            var dest = new Rectangle(
+                (int)(home.Position.X - 16),
+                (int)(home.Position.Y - 16),
+                32,
+                32
+            );
+            _spriteBatch.Draw(_homeTexture, dest, Color.White);
             _spriteBatch.DrawString(_font, $"Storage: {home.StoredResources}", home.Position + new Vector2(-30, -40), Color.White);
         }
 
         foreach (var resource in _resources)
         {
-            _spriteBatch.Draw(_resourceTexture, resource.Position - new Vector2(_resourceTexture.Width / 2, _resourceTexture.Height / 2), Color.White);
+            var dest = new Rectangle(
+                (int)(resource.Position.X - 16),
+                (int)(resource.Position.Y - 16),
+                32,
+                32
+            );
+            _spriteBatch.Draw(_resourceTexture, dest, Color.White);
             _spriteBatch.DrawString(_font, $"{resource.Amount}", resource.Position, Color.White);
         }
 
         foreach (var agent in _agents)
         {
-            _spriteBatch.Draw(_agentTexture, agent.Position - new Vector2(_agentTexture.Width / 2, _agentTexture.Height / 2), Color.White);
+            var dest = new Rectangle(
+                (int)(agent.Position.X - 16),
+                (int)(agent.Position.Y - 16),
+                32,
+                32
+            );
+            _spriteBatch.Draw(_agentTexture, dest, Color.White);
             _spriteBatch.DrawString(_font, $"{agent.CurrentState}", agent.Position + new Vector2(-30, -20), Color.White);
             _spriteBatch.DrawString(_font, $"Carrying: {agent.CarryingAmount}", agent.Position + new Vector2(-30, -40), Color.White);
             _spriteBatch.DrawString(_font, $"Energy: {agent.Energy:F0}", agent.Position + new Vector2(-30, -60), Color.White);

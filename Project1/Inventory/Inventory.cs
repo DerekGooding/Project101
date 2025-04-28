@@ -17,7 +17,6 @@ public class Inventory(int capacity = 20)
 
     public bool AddItem(Item item, int count = 1)
     {
-        // Try to add to existing stack first
         if (item.IsStackable)
         {
             foreach (var instance in _items)
@@ -31,7 +30,6 @@ public class Inventory(int capacity = 20)
             }
         }
 
-        // Add new item if we have space
         if (_items.Count < _capacity)
         {
             _items.Add(new ItemInstance(item, count));
@@ -52,7 +50,6 @@ public class Inventory(int capacity = 20)
             {
                 if (instance.Count <= count)
                 {
-                    // Remove the whole stack
                     _items.RemoveAt(i);
                     ItemRemoved?.Invoke(instance.Item);
                     InventoryChanged?.Invoke();
@@ -60,7 +57,6 @@ public class Inventory(int capacity = 20)
                 }
                 else
                 {
-                    // Remove part of the stack
                     instance.RemoveFromStack(count);
                     ItemRemoved?.Invoke(instance.Item);
                     InventoryChanged?.Invoke();
@@ -105,13 +101,12 @@ public class Inventory(int capacity = 20)
         }
     }
 
-    public Weapon GetEquippedWeapon() => _equippedWeapon;
+    public Weapon? GetEquippedWeapon() => _equippedWeapon;
 
     public void EquipWeapon(Weapon weapon)
     {
         if (_equippedWeapon != null)
         {
-            // Unequip the current weapon
             _equippedWeapon = null;
         }
         _equippedWeapon = weapon;
