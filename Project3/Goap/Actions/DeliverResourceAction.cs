@@ -1,4 +1,4 @@
-﻿namespace Project3.Goap;
+﻿namespace Project3.Goap.Actions;
 
 public class DeliverResourceAction : GOAPAction
 {
@@ -11,7 +11,7 @@ public class DeliverResourceAction : GOAPAction
         Cost = 1.0f;
     }
 
-    public override bool CheckPreconditions(Agent agent, Dictionary<string, object> worldState) => agent.HasResource && agent.Energy > 5 && Target != null;
+    public override bool CheckPreconditions(Agent agent, Dictionary<string, object> worldState) => agent.HasResource && agent.Energy > 5;
 
     public override bool Perform(Agent agent, GameTime gameTime, WorldState worldState)
     {
@@ -25,7 +25,7 @@ public class DeliverResourceAction : GOAPAction
                 agent.CarryingAmount = 0;
                 agent.HasResource = false;
                 agent.Energy -= 5;
-                return true;
+                return true; // Action completed successfully
             }
             else
             {
@@ -34,9 +34,26 @@ public class DeliverResourceAction : GOAPAction
 
                 agent.Position += direction * agent.Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                 agent.Energy -= 0.1f;
+                return false; // Action still in progress
             }
         }
+        else
+        {
+            Home? closestHome = null;
+            var closestDistance = float.MaxValue;
 
-        return false;
+            foreach (var h in worldState.Homes)
+            {
+                var distance = Vector2.Distance(agent.Position, h.Position);
+                if (distance < closestDistance)
+                {
+                    closestHome = h;
+                    closestDistance = distance;
+                }
+            }
+
+            Target = closestHome;
+            return false; // Need to try again with a valid target
+        }
     }
 }

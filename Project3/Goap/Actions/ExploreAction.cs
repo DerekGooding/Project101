@@ -1,10 +1,11 @@
-﻿namespace Project3.Goap;
+﻿namespace Project3.Goap.Actions;
 
 public class ExploreAction : GOAPAction
 {
     private readonly Random _random = Random.Shared;
     private Vector2 _targetPosition;
-    private float _timeUntilNewTarget = 0;
+    private float _timeUntilNewTarget;
+    private bool _hasTarget;
 
     public ExploreAction()
     {
@@ -19,12 +20,13 @@ public class ExploreAction : GOAPAction
     {
         _timeUntilNewTarget -= (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (_timeUntilNewTarget <= 0 || Vector2.Distance(agent.Position, _targetPosition) < 5)
+        if (!_hasTarget || _timeUntilNewTarget <= 0 || Vector2.Distance(agent.Position, _targetPosition) < 5)
         {
             _targetPosition = new Vector2(
                 _random.Next(50, 1230),
                 _random.Next(50, 670));
             _timeUntilNewTarget = 5.0f;
+            _hasTarget = true;
         }
 
         var direction = _targetPosition - agent.Position;

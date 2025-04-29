@@ -6,64 +6,80 @@ public class GOAPPlanner
     {
         var currentState = new Dictionary<string, object>(worldState);
 
-        var usableActions = new List<GOAPAction>();
-        usableActions.AddRange(availableActions);
+        var usableActions = availableActions
+            .Where(a => a.CheckPreconditions(agent, worldState))
+            .ToList();
 
-        var plan = new List<GOAPAction>();
-        var goalAchieved = false;
+        if (usableActions.Count == 0)
+            return null;
 
-        while (!goalAchieved)
+        return BuildPlan(agent, usableActions, currentState, goalState);
+    }
+
+    private List<GOAPAction>? BuildPlan(Agent agent,
+                                      List<GOAPAction> availableActions,
+                                      Dictionary<string, object> worldState,
+                                      Dictionary<string, object> goalState)
+    {
+        var allGoalsMet = true;
+        foreach (var goal in goalState)
         {
-            GOAPAction? bestAction = null;
-            var bestCost = float.MaxValue;
-
-            foreach (var action in usableActions)
+            if (!worldState.TryGetValue(goal.Key, out var value) || !value.Equals(goal.Value))
             {
-                if (action.CheckPreconditions(agent, currentState))
-                {
-                    var actionIsUseful = false;
-                    foreach (var effect in action.Effects)
-                    {
-                        if (goalState.TryGetValue(effect.Key, out var value) && value.Equals(effect.Value))
-                        {
-                            actionIsUseful = true;
-                            break;
-                        }
-                    }
-
-                    if (actionIsUseful && action.Cost < bestCost)
-                    {
-                        bestAction = action;
-                        bestCost = action.Cost;
-                    }
-                }
+                allGoalsMet = false;
+                break;
             }
+        }
 
-            if (bestAction == null)
-                return null;
+        if (allGoalsMet)
+            return [];
 
-            plan.Add(bestAction);
-            usableActions.Remove(bestAction);
+        var bestPlan = new List<GOAPAction>();
+        var bestCost = float.MaxValue;
 
-            foreach (var effect in bestAction.Effects)
+        foreach (var action in availableActions)
+        {
+            var actionAchievesGoal = false;
+            foreach (var effect in action.Effects)
             {
-                currentState[effect.Key] = effect.Value;
-            }
-
-            goalAchieved = true;
-            foreach (var goal in goalState)
-            {
-                if (!currentState.TryGetValue(goal.Key, out var value) || !value.Equals(goal.Value))
+                if (goalState.TryGetValue(effect.Key, out var goalValue) &&
+                    goalValue.Equals(effect.Value))
                 {
-                    goalAchieved = false;
+                    actionAchievesGoal = true;
                     break;
                 }
             }
 
-            if (plan.Count > 10)
-                return null;
+            if (!actionAchievesGoal)
+                continue;
+
+            var subgoal = new Dictionary<string, object>();
+            foreach (var precondition in action.Preconditions)
+            {
+                if (!worldState.TryGetValue(precondition.Key, out var value) ||
+                    !value.Equals(precondition.Value))
+                {
+                    subgoal[precondition.Key] = precondition.Value;
+                }
+            }
+
+            var reducedActions = new List<GOAPAction>(availableActions);
+            reducedActions.Remove(action);
+
+            var subplan = BuildPlan(agent, reducedActions, worldState, subgoal);
+
+            if (subplan != null)
+            {
+                var planCost = subplan.Sum(a => a.Cost) + action.Cost;
+
+                if (planCost < bestCost)
+                {
+                    bestPlan = [.. subplan, action];
+                    bestCost = planCost;
+                }
+            }
         }
 
-        return plan;
+        return bestPlan.Count != 0 ? bestPlan : null;
     }
 }
